@@ -1,302 +1,751 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kisan Setu - Farmer Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>किसान सेतु | मेरा खेत डैशबोर्ड</title>
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+
   <style>
     :root {
-      --primary-green: #2E7D32;
-      --secondary-orange: #F57C00;
-      --accent-yellow: #FDD835;
-      --light-green-bg: #D5E1D2;
-      --dark-green: #1B5E20;
+      --primary-green: #2e7d32;
+      --secondary-orange: #f57c00;
+      --accent-yellow: #fdd835;
+      --blue: #0288d1;
+      --red: #d32f2f;
       --text-dark: #212121;
-      --muted: #616161;
-      --white: #FFFFFF;
-      --border: #E0E0E0;
+      --bg-light: #f8f9fa;
+      --white: #ffffff;
     }
 
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: "Poppins", sans-serif;
     }
 
     body {
-      background-color: var(--light-green-bg);
+      font-family: "Poppins", sans-serif;
+      background-color: var(--bg-light);
       color: var(--text-dark);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    .navbar {
-      background-color: var(--primary-green);
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(135deg, var(--primary-green), #388e3c);
       color: var(--white);
-      padding: 1rem 2rem;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      font-size: 1.4rem;
+      margin-bottom: 25px;
+      padding: 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+    }
+
+    .sidebar ul {
+      list-style: none;
+    }
+
+    .sidebar ul li {
+      padding: 12px 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-radius: 8px;
+      margin-bottom: 5px;
+      font-size: 1rem;
+    }
+
+    .sidebar ul li i {
+      margin-right: 12px;
+      color: var(--accent-yellow);
+      font-size: 1.2rem;
+      width: 20px;
+    }
+
+    .sidebar ul li:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Main area */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    /* Topbar */
+    .topbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: var(--white);
+      padding: 15px 25px;
+      border-bottom: 3px solid var(--secondary-orange);
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
-    .navbar .logo {
+    .menu-toggle {
+      display: none;
       font-size: 1.5rem;
-      font-weight: 700;
+      color: var(--primary-green);
+      cursor: pointer;
     }
 
-    .navbar .user-info {
+    .topbar .left {
+      display: flex;
+      gap: 25px;
+      align-items: center;
+      font-weight: 600;
+      color: var(--primary-green);
+    }
+
+    .topbar .left span {
       display: flex;
       align-items: center;
-      gap: 1rem;
-    }
-
-    .navbar .logout-btn {
-      background: var(--secondary-orange);
-      color: var(--white);
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      cursor: pointer;
+      gap: 8px;
+      padding: 8px 15px;
+      background: #f5f5f5;
+      border-radius: 20px;
       font-size: 0.9rem;
     }
 
-    .dashboard-container {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+    .topbar .left i {
+      color: var(--secondary-orange);
     }
 
+    .topbar .right {
+      background: linear-gradient(135deg, var(--primary-green), #388e3c);
+      color: var(--white);
+      padding: 10px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .topbar .right:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    /* Welcome Section */
     .welcome-section {
-      background: var(--white);
-      padding: 2rem;
-      border-radius: 15px;
-      margin-bottom: 2rem;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      background: linear-gradient(135deg, var(--primary-green), #4caf50);
+      color: var(--white);
+      padding: 20px 25px;
       text-align: center;
     }
 
     .welcome-section h1 {
-      color: var(--primary-green);
-      margin-bottom: 0.5rem;
+      font-size: 1.8rem;
+      margin-bottom: 5px;
     }
 
     .welcome-section p {
-      color: var(--muted);
-      font-size: 1.1rem;
+      font-size: 1rem;
+      opacity: 0.9;
     }
 
-    .dashboard-grid {
+    /* KPI Section */
+    .kpi-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin: 25px;
     }
 
-    .dashboard-card {
+    .kpi-box {
       background: var(--white);
-      padding: 1.5rem;
+      border: 3px solid #e8f5e8;
+      padding: 25px;
+      text-align: center;
       border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
     }
 
-    .dashboard-card:hover {
+    .kpi-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-green), var(--secondary-orange));
+    }
+
+    .kpi-box:hover {
       transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      border-color: var(--secondary-orange);
     }
 
-    .dashboard-card h3 {
+    .kpi-box i {
+      font-size: 2.5rem;
       color: var(--primary-green);
-      margin-bottom: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .kpi-box h3 {
+      color: var(--primary-green);
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .kpi-box .value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--secondary-orange);
+      margin-bottom: 5px;
+    }
+
+    .kpi-box .unit {
+      font-size: 0.9rem;
+      color: var(--text-dark);
+      opacity: 0.7;
+    }
+
+    /* Main content area */
+    .content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 25px;
+      padding: 25px;
+    }
+
+    .main-panel {
+      background: var(--white);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border-left: 5px solid var(--accent-yellow);
+    }
+
+    .side-panel {
+      background: var(--white);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border-left: 5px solid var(--secondary-orange);
+    }
+
+    .panel-header {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
     }
 
-    .dashboard-card .icon {
+    .panel-header i {
       font-size: 1.5rem;
+      color: var(--primary-green);
+    }
+
+    .panel-header h3 {
+      color: var(--primary-green);
+      font-size: 1.3rem;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border-left: 4px solid var(--primary-green);
+    }
+
+    .task-item i {
+      font-size: 1.2rem;
       color: var(--secondary-orange);
     }
 
-    .quick-actions {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
+    .task-text {
+      flex: 1;
     }
 
-    .action-btn {
-      background: var(--primary-green);
-      color: var(--white);
-      border: none;
-      padding: 0.8rem 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.3s;
+    .task-text .title {
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 2px;
     }
 
-    .action-btn:hover {
-      background: var(--dark-green);
+    .task-text .desc {
+      font-size: 0.85rem;
+      color: #666;
     }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .stat-item {
+    /* Alerts section */
+    .alerts {
+      background: linear-gradient(135deg, var(--blue), #03a9f4);
+      margin: 25px;
+      border-radius: 15px;
+      padding: 20px;
       text-align: center;
-      padding: 1rem;
-      background: var(--light-green-bg);
+      color: var(--white);
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(2, 136, 209, 0.3);
+    }
+
+    .alerts i {
+      font-size: 1.5rem;
+      margin-right: 10px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    /* Footer note */
+    .note {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #666;
+      padding: 15px;
+      background: var(--white);
+      margin: 0 25px 25px;
       border-radius: 10px;
     }
 
-    .stat-number {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--primary-green);
-    }
-
-    .stat-label {
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-
-    @media (max-width: 768px) {
-      .navbar {
-        padding: 1rem;
+    /* Responsive Design */
+    @media (max-width: 900px) {
+      body {
         flex-direction: column;
-        gap: 1rem;
       }
 
-      .dashboard-container {
-        margin: 1rem auto;
-        padding: 0 0.5rem;
+      .sidebar {
+        position: fixed;
+        left: -270px;
+        top: 0;
+        height: 100%;
+        z-index: 100;
+        width: 250px;
       }
 
-      .welcome-section {
-        padding: 1.5rem;
+      .sidebar.active {
+        left: 0;
       }
 
-      .dashboard-grid {
+      .menu-toggle {
+        display: block;
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .content {
         grid-template-columns: 1fr;
       }
 
-      .quick-actions {
+      .kpi-container {
         grid-template-columns: 1fr;
+        margin: 15px;
+      }
+
+      .topbar .left {
+        gap: 15px;
+      }
+
+      .topbar .left span {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .topbar .left {
+        display: none;
+      }
+      
+      .welcome-section h1 {
+        font-size: 1.4rem;
+      }
+      
+      .kpi-box {
+        padding: 20px;
       }
     }
   </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="logo">🌾 Kisan Setu</div>
-    <div class="user-info">
-      <span id="user-welcome">Welcome, Farmer!</span>
-      <button class="logout-btn" onclick="logout()">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </button>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div>
+      <h2><i class="fa-solid fa-tractor"></i> किसान सेतु</h2>
+      <ul>
+        <li onclick="showOverview()"><i class="fa-solid fa-home"></i> <span id="menu-home">मुख्य पृष्ठ</span></li>
+        <li onclick="showCropHealth()"><i class="fa-solid fa-leaf"></i> <span id="menu-crop">फसल स्वास्थ्य</span></li>
+        <li onclick="showWeather()"><i class="fa-solid fa-cloud-sun"></i> <span id="menu-weather">मौसम जानकारी</span></li>
+        <li onclick="showMarketplace()"><i class="fa-solid fa-store"></i> <span id="menu-market">बाजार भाव</span></li>
+        <li onclick="showAdvisory()"><i class="fa-solid fa-lightbulb"></i> <span id="menu-advisory">सलाह सेवा</span></li>
+        <li onclick="showProfile()"><i class="fa-solid fa-user"></i> <span id="menu-profile">मेरी प्रोफाइल</span></li>
+        <li onclick="showSettings()"><i class="fa-solid fa-gear"></i> <span id="menu-settings">सेटिंग्स</span></li>
+        <li onclick="logout()"><i class="fa-solid fa-sign-out-alt"></i> <span id="menu-logout">लॉग आउट</span></li>
+      </ul>
     </div>
-  </nav>
+  </div>
 
-  <div class="dashboard-container">
+  <!-- Main Content -->
+  <div class="main">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="menu-toggle" onclick="toggleMenu()">
+        <i class="fa-solid fa-bars"></i>
+      </div>
+      <div class="left">
+        <span><i class="fa-solid fa-map-marker-alt"></i> <span id="farm-text">मेरा खेत</span></span>
+        <span><i class="fa-solid fa-calendar"></i> <span id="date-text">आज की तारीख</span></span>
+        <span><i class="fa-solid fa-bell"></i> <span id="alert-text">अलर्ट</span></span>
+      </div>
+      <div class="right">
+        <select id="language" onchange="changeLanguage()" style="margin-right: 10px; padding: 5px; border-radius: 5px; border: none;">
+          <option value="hi">हिन्दी</option>
+          <option value="en">English</option>
+        </select>
+        <span id="user-info"><i class="fa-solid fa-user"></i> किसान जी</span>
+      </div>
+    </div>
+
+    <!-- Welcome Section -->
     <div class="welcome-section">
-      <h1>Farmer Dashboard</h1>
-      <p>Manage your crops, track weather, and grow your agricultural business with AI-powered insights</p>
+      <h1 id="welcome-title">🙏 नमस्कार किसान भाई!</h1>
+      <p id="welcome-desc">आपके खेत की पूरी जानकारी यहाँ देखें</p>
     </div>
 
-    <div class="dashboard-grid">
-      <div class="dashboard-card">
-        <h3><i class="fas fa-seedling icon"></i>Crop Management</h3>
-        <p>Monitor your crops, track growth stages, and get AI-powered recommendations for better yield.</p>
-        <div class="quick-actions">
-          <button class="action-btn">Add New Crop</button>
-          <button class="action-btn">View Crops</button>
-        </div>
+    <!-- KPI Section -->
+    <div class="kpi-container">
+      <div class="kpi-box">
+        <i class="fa-solid fa-coins"></i>
+        <h3>इस महीने की कमाई</h3>
+        <div class="value">₹1,25,000</div>
+        <div class="unit">रुपये</div>
       </div>
-
-      <div class="dashboard-card">
-        <h3><i class="fas fa-cloud-sun icon"></i>Weather & Advisory</h3>
-        <p>Get real-time weather updates and agricultural advisory based on your location.</p>
-        <div class="quick-actions">
-          <button class="action-btn">Weather Forecast</button>
-          <button class="action-btn">Crop Advisory</button>
-        </div>
+      <div class="kpi-box">
+        <i class="fa-solid fa-droplet"></i>
+        <h3>मिट्टी में नमी</h3>
+        <div class="value">78%</div>
+        <div class="unit">अच्छी स्थिति</div>
       </div>
-
-      <div class="dashboard-card">
-        <h3><i class="fas fa-store icon"></i>Marketplace</h3>
-        <p>Sell your produce directly to consumers and get the best prices for your crops.</p>
-        <div class="quick-actions">
-          <button class="action-btn">List Products</button>
-          <button class="action-btn">View Orders</button>
-        </div>
+      <div class="kpi-box">
+        <i class="fa-solid fa-seedling"></i>
+        <h3>फसल की सेहत</h3>
+        <div class="value">85%</div>
+        <div class="unit">बहुत अच्छी</div>
       </div>
-
-      <div class="dashboard-card">
-        <h3><i class="fas fa-robot icon"></i>AI Disease Detection</h3>
-        <p>Upload crop images to detect diseases early and get treatment recommendations.</p>
-        <div class="quick-actions">
-          <button class="action-btn">Scan Crop</button>
-          <button class="action-btn">View History</button>
-        </div>
+      <div class="kpi-box">
+        <i class="fa-solid fa-thermometer-half"></i>
+        <h3>आज का तापमान</h3>
+        <div class="value">28°C</div>
+        <div class="unit">सामान्य</div>
       </div>
+    </div>
 
-      <div class="dashboard-card">
-        <h3><i class="fas fa-chart-line icon"></i>Analytics</h3>
-        <p>Track your farm performance, yield trends, and financial insights.</p>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-number">5</div>
-            <div class="stat-label">Active Crops</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">₹25K</div>
-            <div class="stat-label">Monthly Revenue</div>
+    <!-- Main Panels -->
+    <div class="content">
+      <div class="main-panel">
+        <div class="panel-header">
+          <i class="fa-solid fa-chart-line"></i>
+          <h3>मेरी फसल की जानकारी</h3>
+        </div>
+        <div class="task-item">
+          <i class="fa-solid fa-wheat-awn"></i>
+          <div class="task-text">
+            <div class="title">गेहूं की फसल</div>
+            <div class="desc">5 एकड़ में लगी है, 80% तैयार है</div>
           </div>
         </div>
-      </div>
-
-      <div class="dashboard-card">
-        <h3><i class="fas fa-users icon"></i>Community</h3>
-        <p>Connect with other farmers, share experiences, and learn from the community.</p>
-        <div class="quick-actions">
-          <button class="action-btn">Join Forum</button>
-          <button class="action-btn">Expert Chat</button>
+        <div class="task-item">
+          <i class="fa-solid fa-corn"></i>
+          <div class="task-text">
+            <div class="title">मक्का की फसल</div>
+            <div class="desc">3 एकड़ में लगी है, 60% तैयार है</div>
+          </div>
+        </div>
+        <div class="task-item">
+          <i class="fa-solid fa-carrot"></i>
+          <div class="task-text">
+            <div class="title">सब्जी की फसल</div>
+            <div class="desc">2 एकड़ में लगी है, कटाई के लिए तैयार</div>
+          </div>
         </div>
       </div>
+
+      <div class="side-panel">
+        <div class="panel-header">
+          <i class="fa-solid fa-list-check"></i>
+          <h3>आज के काम</h3>
+        </div>
+        <div class="task-item">
+          <i class="fa-solid fa-tint"></i>
+          <div class="task-text">
+            <div class="title">पानी देना</div>
+            <div class="desc">सुबह 6 बजे खेत में पानी दें</div>
+          </div>
+        </div>
+        <div class="task-item">
+          <i class="fa-solid fa-spray-can"></i>
+          <div class="task-text">
+            <div class="title">दवा छिड़काव</div>
+            <div class="desc">शाम को कीटनाशक का छिड़काव करें</div>
+          </div>
+        </div>
+        <div class="task-item">
+          <i class="fa-solid fa-truck"></i>
+          <div class="task-text">
+            <div class="title">सब्जी बेचना</div>
+            <div class="desc">मंडी में सब्जी ले जाना है</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="alerts">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <strong>महत्वपूर्ण सूचना:</strong> कल बारिश की संभावना है | गेहूं का भाव ₹2,100 प्रति क्विंटल
+    </div>
+
+    <!-- Footer Note -->
+    <div class="note">
+      <i class="fa-solid fa-heart" style="color: var(--red);"></i>
+      किसान सेतु - आपकी खेती, हमारी तकनीक | सभी किसान भाइयों के लिए बनाया गया
     </div>
   </div>
 
   <script>
+    // Language translations
+    const translations = {
+      hi: {
+        title: 'किसान सेतु | मेरा खेत डैशबोर्ड',
+        sidebarTitle: 'किसान सेतु',
+        menuHome: 'मुख्य पृष्ठ',
+        menuCrop: 'फसल स्वास्थ्य',
+        menuWeather: 'मौसम जानकारी',
+        menuMarket: 'बाजार भाव',
+        menuAdvisory: 'सलाह सेवा',
+        menuProfile: 'मेरी प्रोफाइल',
+        menuSettings: 'सेटिंग्स',
+        menuLogout: 'लॉग आउट',
+        farmText: 'मेरा खेत',
+        dateText: 'आज की तारीख',
+        alertText: 'अलर्ट',
+        welcomeTitle: '🙏 नमस्कार किसान भाई!',
+        welcomeDesc: 'आपके खेत की पूरी जानकारी यहाँ देखें',
+        earningsTitle: 'इस महीने की कमाई',
+        moistureTitle: 'मिट्टी में नमी',
+        cropHealthTitle: 'फसल की सेहत',
+        tempTitle: 'आज का तापमान',
+        cropInfoTitle: 'मेरी फसल की जानकारी',
+        tasksTitle: 'आज के काम',
+        alertMsg: 'महत्वपूर्ण सूचना: कल बारिश की संभावना है | गेहूं का भाव ₹2,100 प्रति क्विंटल',
+        footerMsg: 'किसान सेतु - आपकी खेती, हमारी तकनीक | सभी किसान भाइयों के लिए बनाया गया'
+      },
+      en: {
+        title: 'Kisan Setu | Farmer Dashboard',
+        sidebarTitle: 'Kisan Setu',
+        menuHome: 'Home',
+        menuCrop: 'Crop Health',
+        menuWeather: 'Weather Info',
+        menuMarket: 'Market Prices',
+        menuAdvisory: 'Advisory',
+        menuProfile: 'My Profile',
+        menuSettings: 'Settings',
+        menuLogout: 'Logout',
+        farmText: 'My Farm',
+        dateText: 'Today\'s Date',
+        alertText: 'Alerts',
+        welcomeTitle: '🙏 Welcome Farmer!',
+        welcomeDesc: 'View all your farm information here',
+        earningsTitle: 'This Month\'s Earnings',
+        moistureTitle: 'Soil Moisture',
+        cropHealthTitle: 'Crop Health',
+        tempTitle: 'Today\'s Temperature',
+        cropInfoTitle: 'My Crop Information',
+        tasksTitle: 'Today\'s Tasks',
+        alertMsg: 'Important Notice: Rain expected tomorrow | Wheat price ₹2,100 per quintal',
+        footerMsg: 'Kisan Setu - Your Farming, Our Technology | Made for all farmer brothers'
+      }
+    };
+
+    // Change language function
+    function changeLanguage() {
+      const lang = document.getElementById('language').value;
+      const t = translations[lang];
+      
+      // Update page title
+      document.title = t.title;
+      
+      // Update sidebar
+      document.querySelector('.sidebar h2').innerHTML = `<i class="fa-solid fa-tractor"></i> ${t.sidebarTitle}`;
+      
+      // Update menu items
+      document.getElementById('menu-home').textContent = t.menuHome;
+      document.getElementById('menu-crop').textContent = t.menuCrop;
+      document.getElementById('menu-weather').textContent = t.menuWeather;
+      document.getElementById('menu-market').textContent = t.menuMarket;
+      document.getElementById('menu-advisory').textContent = t.menuAdvisory;
+      document.getElementById('menu-profile').textContent = t.menuProfile;
+      document.getElementById('menu-settings').textContent = t.menuSettings;
+      document.getElementById('menu-logout').textContent = t.menuLogout;
+      
+      // Update topbar
+      document.getElementById('farm-text').textContent = t.farmText;
+      document.getElementById('alert-text').textContent = t.alertText;
+      
+      // Update welcome section
+      document.getElementById('welcome-title').textContent = t.welcomeTitle;
+      document.getElementById('welcome-desc').textContent = t.welcomeDesc;
+      
+      // Update KPI titles
+      const kpiTitles = document.querySelectorAll('.kpi-box h3');
+      if (kpiTitles.length >= 4) {
+        kpiTitles[0].textContent = t.earningsTitle;
+        kpiTitles[1].textContent = t.moistureTitle;
+        kpiTitles[2].textContent = t.cropHealthTitle;
+        kpiTitles[3].textContent = t.tempTitle;
+      }
+      
+      // Update panel headers
+      const panelHeaders = document.querySelectorAll('.panel-header h3');
+      if (panelHeaders.length >= 2) {
+        panelHeaders[0].textContent = t.cropInfoTitle;
+        panelHeaders[1].textContent = t.tasksTitle;
+      }
+      
+      // Update alerts
+      const alertsDiv = document.querySelector('.alerts');
+      if (alertsDiv) {
+        alertsDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <strong>${t.alertMsg}</strong>`;
+      }
+      
+      // Update footer
+      const footerDiv = document.querySelector('.note');
+      if (footerDiv) {
+        footerDiv.innerHTML = `<i class="fa-solid fa-heart" style="color: var(--red);"></i> ${t.footerMsg}`;
+      }
+      
+      // Save language preference
+      localStorage.setItem('kisanSetuLanguage', lang);
+      
+      // Update date with new language
+      updateCurrentDate();
+    }
+
     // Load user data on page load
     document.addEventListener('DOMContentLoaded', function() {
       const currentUser = localStorage.getItem('currentUser');
       if (currentUser) {
         const userData = JSON.parse(currentUser);
-        document.getElementById('user-welcome').textContent = `Welcome, ${userData.fullname}!`;
+        const lang = localStorage.getItem('kisanSetuLanguage') || 'hi';
+        const suffix = lang === 'hi' ? ' जी' : '';
+        document.getElementById('user-info').innerHTML = `<i class="fa-solid fa-user"></i> ${userData.fullname}${suffix}`;
       } else {
-        // Redirect to login if no user is logged in
         window.location.href = 'login.html';
       }
+      
+      // Load saved language preference
+      const savedLang = localStorage.getItem('kisanSetuLanguage') || 'hi';
+      document.getElementById('language').value = savedLang;
+      changeLanguage();
+      
+      // Update current date
+      updateCurrentDate();
     });
 
-    function logout() {
-      localStorage.removeItem('currentUser');
-      alert('Logged out successfully!');
-      window.location.href = 'login.html';
+    function updateCurrentDate() {
+      const today = new Date();
+      const lang = document.getElementById('language').value || 'hi';
+      const locale = lang === 'hi' ? 'hi-IN' : 'en-US';
+      
+      const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        weekday: 'long'
+      };
+      
+      const dateStr = today.toLocaleDateString(locale, options);
+      
+      // Update date in topbar
+      const dateElement = document.getElementById('date-text');
+      if (dateElement) {
+        dateElement.textContent = dateStr;
+      }
     }
 
-    // Add click handlers for action buttons
-    document.querySelectorAll('.action-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        alert('Feature coming soon! This will redirect to ' + this.textContent);
-      });
-    });
+    function toggleMenu() {
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
+    function showOverview() {
+      alert('🏠 मुख्य पृष्ठ: यहाँ आपकी खेती की सारी जानकारी है');
+    }
+
+    function showCropHealth() {
+      alert('🌱 फसल स्वास्थ्य: AI तकनीक से फसल की बीमारी पता करें - जल्दी आ रहा है!');
+    }
+
+    function showWeather() {
+      alert('🌤️ मौसम जानकारी: आज और कल के मौसम की पूरी जानकारी - जल्दी आ रहा है!');
+    }
+
+    function showMarketplace() {
+      alert('🛒 बाजार भाव: अपनी फसल सीधे ग्राहकों को बेचें - जल्दी आ रहा है!');
+    }
+
+    function showAdvisory() {
+      alert('💡 सलाह सेवा: कृषि विशेषज्ञों की सलाह और सुझाव - जल्दी आ रहा है!');
+    }
+
+    function showProfile() {
+      alert('👤 मेरी प्रोफाइल: अपनी जानकारी देखें और बदलें - जल्दी आ रहा है!');
+    }
+
+    function showSettings() {
+      alert('⚙️ सेटिंग्स: ऐप की सेटिंग्स बदलें - जल्दी आ रहा है!');
+    }
+
+    function logout() {
+      if (confirm('क्या आप वाकई लॉग आउट करना चाहते हैं?')) {
+        localStorage.removeItem('currentUser');
+        alert('सफलतापूर्वक लॉग आउट हो गए!');
+        window.location.href = 'login.html';
+      }
+    }
+
+    // Auto-refresh data every 5 minutes
+    setInterval(function() {
+      updateCurrentDate();
+    }, 300000);
   </script>
 </body>
 </html>

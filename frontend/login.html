@@ -303,7 +303,12 @@
     
     if (user) {
       alert('Login successful!');
+      
+      // Store current user session
       localStorage.setItem('currentUser', JSON.stringify(user));
+      
+      // Track login in database
+      trackUserLogin(user);
       
       // Redirect based on user type
       if (user.usertype === 'farmer') {
@@ -315,16 +320,74 @@
       // Demo credentials for testing
       if (username === 'admin' && password === 'password') {
         alert('Login successful!');
-        localStorage.setItem('currentUser', JSON.stringify({
+        const adminUser = {
           fullname: 'Admin User',
           username: 'admin',
           usertype: 'farmer'
-        }));
+        };
+        localStorage.setItem('currentUser', JSON.stringify(adminUser));
+        
+        // Track admin login
+        trackUserLogin(adminUser);
+        
         window.location.href = 'farmer-dashboard.html';
       } else {
         alert('Invalid credentials. Please register first or use admin/password for demo.');
       }
     }
+  }
+
+  // 📊 Track user login sessions
+  function trackUserLogin(user) {
+    const loginSession = {
+      username: user.username,
+      fullname: user.fullname,
+      usertype: user.usertype,
+      loginTime: new Date().toISOString(),
+      sessionId: generateSessionId(),
+      ipAddress: 'localhost', // In real app, get actual IP
+      userAgent: navigator.userAgent
+    };
+    
+    // Get existing login history or create new array
+    let loginHistory = JSON.parse(localStorage.getItem('kisanSetuLoginHistory') || '[]');
+    
+    // Add new login session
+    loginHistory.push(loginSession);
+    
+    // Keep only last 100 login records to prevent storage overflow
+    if (loginHistory.length > 100) {
+      loginHistory = loginHistory.slice(-100);
+    }
+    
+    // Store updated login history
+    localStorage.setItem('kisanSetuLoginHistory', JSON.stringify(loginHistory));
+    
+    // Update user statistics
+    updateUserStats(user.username);
+  }
+  
+  // 🔢 Generate unique session ID
+  function generateSessionId() {
+    return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  }
+  
+  // 📈 Update user login statistics
+  function updateUserStats(username) {
+    let userStats = JSON.parse(localStorage.getItem('kisanSetuUserStats') || '{}');
+    
+    if (!userStats[username]) {
+      userStats[username] = {
+        totalLogins: 0,
+        firstLogin: new Date().toISOString(),
+        lastLogin: new Date().toISOString()
+      };
+    }
+    
+    userStats[username].totalLogins++;
+    userStats[username].lastLogin = new Date().toISOString();
+    
+    localStorage.setItem('kisanSetuUserStats', JSON.stringify(userStats));
   }
 
   // ⌨️ Enter key to login
