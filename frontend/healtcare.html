@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kisan Setu - Crop Health</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    /* 🌿 Theme Variables */
+    :root {
+      --primary-green: #2E7D32;
+      --secondary-orange: #F57C00;
+      --accent-yellow: #FDD835;
+      --light-green-bg: #D5E1D2;
+      --dark-green: #1B5E20;
+      --text-dark: #212121;
+      --muted: #616161;
+      --white: #FFFFFF;
+      --border: #E0E0E0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    /* 🌈 Background Animation */
+    body {
+      background: linear-gradient(120deg, #D5E1D2, #f1ffe9, #dff5d1);
+      background-size: 300% 300%;
+      animation: gradientShift 10s ease infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: var(--text-dark);
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* 🌾 Container Styling */
+    .health-container {
+      background-color: var(--white);
+      width: 420px;
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(46, 125, 50, 0.25);
+      text-align: center;
+      border: 1px solid var(--border);
+      position: relative;
+      transform-style: preserve-3d;
+      animation: float3D 6s ease-in-out infinite;
+    }
+
+    /* 🌟 3D Floating Animation */
+    @keyframes float3D {
+      0% { transform: rotateY(0deg) rotateX(0deg) translateZ(0); }
+      25% { transform: rotateY(8deg) rotateX(3deg) translateZ(10px); }
+      50% { transform: rotateY(-8deg) rotateX(-3deg) translateZ(20px); }
+      75% { transform: rotateY(5deg) rotateX(2deg) translateZ(10px); }
+      100% { transform: rotateY(0deg) rotateX(0deg) translateZ(0); }
+    }
+
+    .health-container:hover {
+      transform: rotateY(0deg) rotateX(0deg) translateZ(25px) scale(1.03);
+      box-shadow: 0 20px 40px rgba(46, 125, 50, 0.3);
+    }
+
+    /* 🌱 Logo Animation */
+    .logo {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 1rem;
+      animation: spin3D 10s ease-in-out infinite;
+      object-fit: contain;
+    }
+
+    @keyframes spin3D {
+      0% { transform: rotateY(0deg) rotateX(0deg); }
+      50% { transform: rotateY(15deg) rotateX(10deg); }
+      100% { transform: rotateY(0deg) rotateX(0deg); }
+    }
+
+    /* 🧾 Text Styling */
+    h2 {
+      color: var(--primary-green);
+      font-weight: 700;
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* 📸 Upload Box */
+    .upload-box {
+      background: rgba(46, 125, 50, 0.05);
+      border: 2px dashed var(--primary-green);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    .upload-box:hover {
+      background: rgba(46, 125, 50, 0.1);
+      transform: scale(1.03);
+    }
+
+    .upload-box i {
+      font-size: 2rem;
+      color: var(--secondary-orange);
+      margin-bottom: 0.5rem;
+    }
+
+    .upload-box input {
+      display: none;
+    }
+
+    .file-name {
+      font-size: 0.9rem;
+      color: var(--dark-green);
+      margin-top: 0.5rem;
+      font-weight: 500;
+    }
+
+    /* 🔍 Analyze Button */
+    .analyze-btn {
+      width: 100%;
+      margin-top: 1.5rem;
+      background: linear-gradient(90deg, #2E7D32, #4CAF50);
+      color: #fff;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.4s ease;
+    }
+
+    .analyze-btn:hover {
+      background: linear-gradient(90deg, #43A047, #66BB6A);
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(27, 94, 32, 0.4);
+    }
+
+    /* 🌾 Result Box */
+    .result-box {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      display: none;
+      text-align: left;
+    }
+
+    .result-box h3 {
+      color: var(--secondary-orange);
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .result-box p {
+      color: var(--text-dark);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    footer {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="health-container">
+    <img src="src/assets/images/Kisansetu.png" alt="Kisan Setu Logo" class="logo">
+
+    <h2>Crop Health Analyzer</h2>
+    <p>Upload an image of your crop leaf to analyze its health condition using AI.</p>
+
+    <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      <div>Click or drag to upload image</div>
+      <input type="file" id="fileInput" accept="image/*" onchange="showFileName(event)">
+      <div class="file-name" id="fileName">No file chosen</div>
+    </div>
+
+    <button class="analyze-btn" onclick="analyzeCrop()">Analyze Crop Health</button>
+
+    <div class="result-box" id="resultBox">
+      <h3>Analysis Result:</h3>
+      <p id="resultText">Analyzing image, please wait...</p>
+    </div>
+
+    <footer>© 2025 Kisan Setu | Empowering Farmers</footer>
+  </div>
+
+  <script>
+    // 📂 Show uploaded file name
+    function showFileName(event) {
+      const file = event.target.files[0];
+      const fileName = document.getElementById('fileName');
+      fileName.textContent = file ? file.name : 'No file chosen';
+    }
+
+    // 🤖 Simulate crop health analysis
+    function analyzeCrop() {
+      const file = document.getElementById('fileInput').files[0];
+      const resultBox = document.getElementById('resultBox');
+      const resultText = document.getElementById('resultText');
+
+      if (!file) {
+        alert('Please upload an image first!');
+        return;
+      }
+
+      resultBox.style.display = 'block';
+      resultText.textContent = 'Analyzing image... 🌿';
+
+      // Simulated delay for analysis
+      setTimeout(() => {
+        const results = [
+          "✅ Crop appears healthy. Maintain regular watering and sunlight.",
+          "⚠️ Early signs of fungal infection detected. Consider antifungal spray.",
+          "❗ Nutrient deficiency noticed — try soil enrichment fertilizers."
+        ];
+        const randomResult = results[Math.floor(Math.random() * results.length)];
+        resultText.textContent = randomResult;
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
