@@ -33,13 +33,14 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 20px 0;
+      padding: 10px;
     }
 
     .register-container {
       background-color: var(--white);
-      width: 400px;
-      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      padding: 2rem;
       border-radius: 20px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
       text-align: center;
@@ -54,25 +55,26 @@
     }
 
     .language-selector select {
-      padding: 5px 10px;
+      padding: 5px 8px;
       border-radius: 5px;
       border: 1px solid var(--border);
       background: var(--white);
       color: var(--primary-green);
       font-weight: 600;
       cursor: pointer;
+      font-size: 0.8rem;
     }
 
     .logo {
-      width: 100px;
-      height: 100px;
+      width: 80px;
+      height: 80px;
       margin: 0 auto 1rem;
       border-radius: 10px;
       object-fit: contain;
     }
 
     .welcome-main {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 700;
       color: var(--primary-green);
       letter-spacing: 1px;
@@ -81,7 +83,7 @@
 
     .welcome {
       color: var(--secondary-orange);
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
       margin-bottom: 0.8rem;
     }
@@ -89,20 +91,20 @@
     h2 {
       color: var(--primary-green);
       font-weight: 700;
-      font-size: 1.4rem;
-      margin-bottom: 1.2rem;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
       letter-spacing: 0.5px;
     }
 
     .input-group {
       text-align: left;
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.7rem;
       position: relative;
     }
 
     .input-group label {
       display: block;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: var(--muted);
       margin-bottom: 0.3rem;
     }
@@ -112,7 +114,7 @@
       padding: 0.6rem;
       border: 1px solid var(--border);
       border-radius: 8px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
 
     .input-group input:focus, .input-group select:focus {
@@ -129,10 +131,35 @@
       color: var(--muted);
     }
 
+    .password-strength {
+      margin-top: 5px;
+      font-size: 0.75rem;
+      display: none;
+    }
+
+    .strength-weak { color: #f44336; }
+    .strength-medium { color: #ff9800; }
+    .strength-strong { color: #4caf50; }
+
+    .password-tips {
+      background: #f5f5f5;
+      padding: 8px;
+      border-radius: 5px;
+      font-size: 0.7rem;
+      margin-top: 5px;
+      display: none;
+      text-align: left;
+    }
+
+    .password-tips ul {
+      margin: 3px 0;
+      padding-left: 15px;
+    }
+
     .terms {
       display: flex;
       align-items: flex-start;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--muted);
       margin-bottom: 1rem;
       text-align: left;
@@ -166,7 +193,7 @@
     .links a {
       color: var(--secondary-orange);
       text-decoration: none;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
 
     .links a:hover {
@@ -175,15 +202,35 @@
 
     footer {
       text-align: center;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--muted);
-      margin-top: 1.2rem;
+      margin-top: 1rem;
     }
 
-    @media (max-width: 450px) {
+    @media (max-width: 480px) {
       .register-container {
-        width: 90%;
-        padding: 2rem;
+        padding: 1.5rem;
+        margin: 10px;
+      }
+      .logo {
+        width: 70px;
+        height: 70px;
+      }
+      .welcome-main {
+        font-size: 1.1rem;
+      }
+      h2 {
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .register-container {
+        padding: 1.2rem;
+      }
+      .input-group input, .input-group select {
+        padding: 0.5rem;
+        font-size: 0.85rem;
       }
     }
   </style>
@@ -236,8 +283,17 @@
 
     <div class="input-group">
       <label for="password" id="password-label">Password</label>
-      <input type="password" id="password" placeholder="Create a password">
+      <input type="password" id="password" placeholder="Create a password" oninput="checkPasswordStrength()">
       <i class="fa-solid fa-eye show-pass" id="togglePass" onclick="togglePassword()"></i>
+      <div class="password-strength" id="password-strength"></div>
+      <div class="password-tips" id="password-tips">
+        <strong>Strong password should have:</strong>
+        <ul>
+          <li>At least 8 characters</li>
+          <li>Uppercase and lowercase letters</li>
+          <li>Numbers and special characters</li>
+        </ul>
+      </div>
     </div>
 
     <div class="input-group">
@@ -251,7 +307,7 @@
       <label for="terms" id="terms-text">I agree to the Terms of Service and Privacy Policy</label>
     </div>
 
-    <button type="button" class="register-btn" id="register-btn" onclick="handleRegister()">Create Account</button>
+    <button class="register-btn" onclick="handleRegister()">Register</button>
 
     <div class="links">
       <a href="login.html" id="login-link">Already have an account? Login</a>
@@ -260,81 +316,97 @@
     <footer id="footer-text">© 2025 Kisan Setu | Empowering Farmers</footer>
   </div>
 
-  <script>
-    function changeLanguage() {
-      const lang = document.getElementById("language").value;
-      const text = {
-        en: {
-          welcome: "JOIN US",
-          tagline: "Create Your Kisan Setu Account",
-          register: "REGISTER",
-          fullname: "Full Name",
-          email: "Email",
-          phone: "Phone Number",
-          usertype: "User Type",
-          username: "Username",
-          password: "Password",
-          confirmPassword: "Confirm Password",
-          terms: "I agree to the Terms of Service and Privacy Policy",
-          registerBtn: "Create Account",
-          login: "Already have an account? Login",
-          footer: "© 2025 Kisan Setu | Empowering Farmers"
-        },
-        hi: {
-          welcome: "हमसे जुड़ें",
-          tagline: "अपना किसान सेतु खाता बनाएं",
-          register: "पंजीकरण",
-          fullname: "पूरा नाम",
-          email: "ईमेल",
-          phone: "फोन नंबर",
-          usertype: "उपयोगकर्ता प्रकार",
-          username: "उपयोगकर्ता नाम",
-          password: "पासवर्ड",
-          confirmPassword: "पासवर्ड की पुष्टि करें",
-          terms: "मैं सेवा की शर्तों और गोपनीयता नीति से सहमत हूं",
-          registerBtn: "खाता बनाएं",
-          login: "पहले से खाता है? लॉगिन करें",
-          footer: "© 2025 किसान सेतु | किसानों को सशक्त बनाना"
-        }
-      };
-      const t = text[lang];
-      document.getElementById("welcome-main").innerText = t.welcome;
-      document.getElementById("tagline").innerText = t.tagline;
-      document.getElementById("register-title").innerText = t.register;
-      document.getElementById("fullname-label").innerText = t.fullname;
-      document.getElementById("email-label").innerText = t.email;
-      document.getElementById("phone-label").innerText = t.phone;
-      document.getElementById("usertype-label").innerText = t.usertype;
-      document.getElementById("username-label").innerText = t.username;
-      document.getElementById("password-label").innerText = t.password;
-      document.getElementById("confirm-password-label").innerText = t.confirmPassword;
-      document.getElementById("terms-text").innerText = t.terms;
-      document.getElementById("register-btn").innerText = t.registerBtn;
-      document.getElementById("login-link").innerText = t.login;
-      document.getElementById("footer-text").innerText = t.footer;
-    }
+<script>
+function handleRegister() {
+  const name = document.getElementById('fullname').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const usertype = document.getElementById('usertype').value.trim();
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const confirm = document.getElementById('confirmPassword').value.trim();
+  const terms = document.getElementById('terms').checked;
 
-    function togglePassword() {
-      const pass = document.getElementById("password");
-      const icon = document.getElementById("togglePass");
-      if (pass.type === "password") {
-        pass.type = "text";
-        icon.classList.replace("fa-eye", "fa-eye-slash");
-      } else {
-        pass.type = "password";
-        icon.classList.replace("fa-eye-slash", "fa-eye");
+  if (!name || !email || !phone || !usertype || !username || !password || !confirm) {
+    alert("⚠️ Please fill in all fields!");
+    return;
+  }
+
+  if (password !== confirm) {
+    alert("❌ Passwords do not match!");
+    return;
+  }
+
+  if (!terms) {
+    alert("⚠️ Please accept the terms and conditions!");
+    return;
+  }
+
+  // ✅ Save to localStorage (for demo)
+  localStorage.setItem("registeredUser", JSON.stringify({ name, email, phone, usertype, username, password }));
+
+  alert("✅ Registration successful! Redirecting to login page...");
+
+  // ✅ Redirect to login.html
+  setTimeout(() => {
+    window.location.href = "login.html";
+  }, 1000);
+}
+
+// 🧩 Responsive scaling
+function makeResponsive() {
+  const width = window.innerWidth;
+  const container = document.querySelector('.register-container');
+  const logo = document.querySelector('.logo');
+
+  let scale = Math.max(0.7, Math.min(width / 1440, 1.1));
+  container.style.width = `${400 * scale}px`;
+  logo.style.width = `${100 * scale}px`;
+  logo.style.height = `${100 * scale}px`;
+
+  if (width < 420) {
+    container.style.width = "90%";
+  }
+}
+
+window.addEventListener('load', makeResponsive);
+window.addEventListener('resize', makeResponsive);
+</script>
+
+<<<<<<< HEAD
+=======
+    function checkPasswordStrength() {
+      const password = document.getElementById('password').value;
+      const strengthDiv = document.getElementById('password-strength');
+      const tipsDiv = document.getElementById('password-tips');
+      
+      if (password.length === 0) {
+        strengthDiv.style.display = 'none';
+        tipsDiv.style.display = 'none';
+        return;
       }
-    }
-
-    function toggleConfirmPassword() {
-      const pass = document.getElementById("confirmPassword");
-      const icon = document.getElementById("toggleConfirmPass");
-      if (pass.type === "password") {
-        pass.type = "text";
-        icon.classList.replace("fa-eye", "fa-eye-slash");
+      
+      strengthDiv.style.display = 'block';
+      tipsDiv.style.display = 'block';
+      
+      let score = 0;
+      
+      if (password.length >= 8) score++;
+      if (/[A-Z]/.test(password)) score++;
+      if (/[a-z]/.test(password)) score++;
+      if (/\d/.test(password)) score++;
+      if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score++;
+      
+      if (score < 3) {
+        strengthDiv.textContent = 'Weak password - Add more characters for better security';
+        strengthDiv.className = 'password-strength strength-weak';
+      } else if (score < 4) {
+        strengthDiv.textContent = 'Medium strength - Consider adding special characters';
+        strengthDiv.className = 'password-strength strength-medium';
       } else {
-        pass.type = "password";
-        icon.classList.replace("fa-eye-slash", "fa-eye");
+        strengthDiv.textContent = 'Strong password - Great for security!';
+        strengthDiv.className = 'password-strength strength-strong';
+        tipsDiv.style.display = 'none';
       }
     }
 
@@ -358,20 +430,44 @@
         return;
       }
       
+      if (password.length < 8) {
+        alert('Password must be at least 8 characters long for better security');
+        return;
+      }
+      
       if (!terms) {
         alert('Please accept the terms and conditions');
         return;
       }
       
+      // Store user data in localStorage
+      const userData = {
+        fullname,
+        email,
+        phone,
+        usertype,
+        username,
+        password,
+        registrationDate: new Date().toISOString()
+      };
+      
+      // Get existing users or create new array
+      let users = JSON.parse(localStorage.getItem('kisanSetuUsers') || '[]');
+      
+      // Check if username already exists
+      if (users.find(user => user.username === username)) {
+        alert('Username already exists. Please choose a different username.');
+        return;
+      }
+      
+      // Add new user
+      users.push(userData);
+      localStorage.setItem('kisanSetuUsers', JSON.stringify(users));
+      
       alert('Registration successful! Please login with your credentials.');
       window.location.href = 'login.html';
     }
+>>>>>>> be4219357aa6cc26850b573f7c52593427ce39de
 
-    document.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        handleRegister();
-      }
-    });
-  </script>
 </body>
 </html>

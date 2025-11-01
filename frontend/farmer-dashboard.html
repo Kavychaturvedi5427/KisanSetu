@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kisan Setu - Farmer Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-green: #2E7D32;
+      --secondary-orange: #F57C00;
+      --accent-yellow: #FDD835;
+      --light-green-bg: #D5E1D2;
+      --dark-green: #1B5E20;
+      --text-dark: #212121;
+      --muted: #616161;
+      --white: #FFFFFF;
+      --border: #E0E0E0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background-color: var(--light-green-bg);
+      color: var(--text-dark);
+    }
+
+    .navbar {
+      background-color: var(--primary-green);
+      color: var(--white);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .navbar .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .navbar .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .navbar .logout-btn {
+      background: var(--secondary-orange);
+      color: var(--white);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .welcome-section {
+      background: var(--white);
+      padding: 2rem;
+      border-radius: 15px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .welcome-section h1 {
+      color: var(--primary-green);
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-section p {
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .dashboard-card {
+      background: var(--white);
+      padding: 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .dashboard-card h3 {
+      color: var(--primary-green);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dashboard-card .icon {
+      font-size: 1.5rem;
+      color: var(--secondary-orange);
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .action-btn {
+      background: var(--primary-green);
+      color: var(--white);
+      border: none;
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.3s;
+    }
+
+    .action-btn:hover {
+      background: var(--dark-green);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+      background: var(--light-green-bg);
+      border-radius: 10px;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-green);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .dashboard-container {
+        margin: 1rem auto;
+        padding: 0 0.5rem;
+      }
+
+      .welcome-section {
+        padding: 1.5rem;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">🌾 Kisan Setu</div>
+    <div class="user-info">
+      <span id="user-welcome">Welcome, Farmer!</span>
+      <button class="logout-btn" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <div class="dashboard-container">
+    <div class="welcome-section">
+      <h1>Farmer Dashboard</h1>
+      <p>Manage your crops, track weather, and grow your agricultural business with AI-powered insights</p>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="dashboard-card">
+        <h3><i class="fas fa-seedling icon"></i>Crop Management</h3>
+        <p>Monitor your crops, track growth stages, and get AI-powered recommendations for better yield.</p>
+        <div class="quick-actions">
+          <button class="action-btn">Add New Crop</button>
+          <button class="action-btn">View Crops</button>
+        </div>
+      </div>
+
+      <div class="dashboard-card">
+        <h3><i class="fas fa-cloud-sun icon"></i>Weather & Advisory</h3>
+        <p>Get real-time weather updates and agricultural advisory based on your location.</p>
+        <div class="quick-actions">
+          <button class="action-btn">Weather Forecast</button>
+          <button class="action-btn">Crop Advisory</button>
+        </div>
+      </div>
+
+      <div class="dashboard-card">
+        <h3><i class="fas fa-store icon"></i>Marketplace</h3>
+        <p>Sell your produce directly to consumers and get the best prices for your crops.</p>
+        <div class="quick-actions">
+          <button class="action-btn">List Products</button>
+          <button class="action-btn">View Orders</button>
+        </div>
+      </div>
+
+      <div class="dashboard-card">
+        <h3><i class="fas fa-robot icon"></i>AI Disease Detection</h3>
+        <p>Upload crop images to detect diseases early and get treatment recommendations.</p>
+        <div class="quick-actions">
+          <button class="action-btn">Scan Crop</button>
+          <button class="action-btn">View History</button>
+        </div>
+      </div>
+
+      <div class="dashboard-card">
+        <h3><i class="fas fa-chart-line icon"></i>Analytics</h3>
+        <p>Track your farm performance, yield trends, and financial insights.</p>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number">5</div>
+            <div class="stat-label">Active Crops</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">₹25K</div>
+            <div class="stat-label">Monthly Revenue</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-card">
+        <h3><i class="fas fa-users icon"></i>Community</h3>
+        <p>Connect with other farmers, share experiences, and learn from the community.</p>
+        <div class="quick-actions">
+          <button class="action-btn">Join Forum</button>
+          <button class="action-btn">Expert Chat</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Load user data on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        const userData = JSON.parse(currentUser);
+        document.getElementById('user-welcome').textContent = `Welcome, ${userData.fullname}!`;
+      } else {
+        // Redirect to login if no user is logged in
+        window.location.href = 'login.html';
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      alert('Logged out successfully!');
+      window.location.href = 'login.html';
+    }
+
+    // Add click handlers for action buttons
+    document.querySelectorAll('.action-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        alert('Feature coming soon! This will redirect to ' + this.textContent);
+      });
+    });
+  </script>
+</body>
+</html>
