@@ -33,13 +33,14 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 20px 0;
+      padding: 10px;
     }
 
     .register-container {
       background-color: var(--white);
-      width: 400px;
-      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      padding: 2rem;
       border-radius: 20px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
       text-align: center;
@@ -54,25 +55,26 @@
     }
 
     .language-selector select {
-      padding: 5px 10px;
+      padding: 5px 8px;
       border-radius: 5px;
       border: 1px solid var(--border);
       background: var(--white);
       color: var(--primary-green);
       font-weight: 600;
       cursor: pointer;
+      font-size: 0.8rem;
     }
 
     .logo {
-      width: 100px;
-      height: 100px;
+      width: 80px;
+      height: 80px;
       margin: 0 auto 1rem;
       border-radius: 10px;
       object-fit: contain;
     }
 
     .welcome-main {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 700;
       color: var(--primary-green);
       letter-spacing: 1px;
@@ -81,7 +83,7 @@
 
     .welcome {
       color: var(--secondary-orange);
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
       margin-bottom: 0.8rem;
     }
@@ -89,20 +91,20 @@
     h2 {
       color: var(--primary-green);
       font-weight: 700;
-      font-size: 1.4rem;
-      margin-bottom: 1.2rem;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
       letter-spacing: 0.5px;
     }
 
     .input-group {
       text-align: left;
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.7rem;
       position: relative;
     }
 
     .input-group label {
       display: block;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: var(--muted);
       margin-bottom: 0.3rem;
     }
@@ -112,7 +114,7 @@
       padding: 0.6rem;
       border: 1px solid var(--border);
       border-radius: 8px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
 
     .input-group input:focus, .input-group select:focus {
@@ -129,10 +131,35 @@
       color: var(--muted);
     }
 
+    .password-strength {
+      margin-top: 5px;
+      font-size: 0.75rem;
+      display: none;
+    }
+
+    .strength-weak { color: #f44336; }
+    .strength-medium { color: #ff9800; }
+    .strength-strong { color: #4caf50; }
+
+    .password-tips {
+      background: #f5f5f5;
+      padding: 8px;
+      border-radius: 5px;
+      font-size: 0.7rem;
+      margin-top: 5px;
+      display: none;
+      text-align: left;
+    }
+
+    .password-tips ul {
+      margin: 3px 0;
+      padding-left: 15px;
+    }
+
     .terms {
       display: flex;
       align-items: flex-start;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--muted);
       margin-bottom: 1rem;
       text-align: left;
@@ -166,7 +193,7 @@
     .links a {
       color: var(--secondary-orange);
       text-decoration: none;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
 
     .links a:hover {
@@ -175,15 +202,35 @@
 
     footer {
       text-align: center;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--muted);
-      margin-top: 1.2rem;
+      margin-top: 1rem;
     }
 
-    @media (max-width: 450px) {
+    @media (max-width: 480px) {
       .register-container {
-        width: 90%;
-        padding: 2rem;
+        padding: 1.5rem;
+        margin: 10px;
+      }
+      .logo {
+        width: 70px;
+        height: 70px;
+      }
+      .welcome-main {
+        font-size: 1.1rem;
+      }
+      h2 {
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .register-container {
+        padding: 1.2rem;
+      }
+      .input-group input, .input-group select {
+        padding: 0.5rem;
+        font-size: 0.85rem;
       }
     }
   </style>
@@ -236,8 +283,17 @@
 
     <div class="input-group">
       <label for="password" id="password-label">Password</label>
-      <input type="password" id="password" placeholder="Create a password">
+      <input type="password" id="password" placeholder="Create a password" oninput="checkPasswordStrength()">
       <i class="fa-solid fa-eye show-pass" id="togglePass" onclick="togglePassword()"></i>
+      <div class="password-strength" id="password-strength"></div>
+      <div class="password-tips" id="password-tips">
+        <strong>Strong password should have:</strong>
+        <ul>
+          <li>At least 8 characters</li>
+          <li>Uppercase and lowercase letters</li>
+          <li>Numbers and special characters</li>
+        </ul>
+      </div>
     </div>
 
     <div class="input-group">
@@ -338,6 +394,41 @@
       }
     }
 
+    function checkPasswordStrength() {
+      const password = document.getElementById('password').value;
+      const strengthDiv = document.getElementById('password-strength');
+      const tipsDiv = document.getElementById('password-tips');
+      
+      if (password.length === 0) {
+        strengthDiv.style.display = 'none';
+        tipsDiv.style.display = 'none';
+        return;
+      }
+      
+      strengthDiv.style.display = 'block';
+      tipsDiv.style.display = 'block';
+      
+      let score = 0;
+      
+      if (password.length >= 8) score++;
+      if (/[A-Z]/.test(password)) score++;
+      if (/[a-z]/.test(password)) score++;
+      if (/\d/.test(password)) score++;
+      if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score++;
+      
+      if (score < 3) {
+        strengthDiv.textContent = 'Weak password - Add more characters for better security';
+        strengthDiv.className = 'password-strength strength-weak';
+      } else if (score < 4) {
+        strengthDiv.textContent = 'Medium strength - Consider adding special characters';
+        strengthDiv.className = 'password-strength strength-medium';
+      } else {
+        strengthDiv.textContent = 'Strong password - Great for security!';
+        strengthDiv.className = 'password-strength strength-strong';
+        tipsDiv.style.display = 'none';
+      }
+    }
+
     function handleRegister() {
       const fullname = document.getElementById('fullname').value;
       const email = document.getElementById('email').value;
@@ -358,10 +449,39 @@
         return;
       }
       
+      if (password.length < 8) {
+        alert('Password must be at least 8 characters long for better security');
+        return;
+      }
+      
       if (!terms) {
         alert('Please accept the terms and conditions');
         return;
       }
+      
+      // Store user data in localStorage
+      const userData = {
+        fullname,
+        email,
+        phone,
+        usertype,
+        username,
+        password,
+        registrationDate: new Date().toISOString()
+      };
+      
+      // Get existing users or create new array
+      let users = JSON.parse(localStorage.getItem('kisanSetuUsers') || '[]');
+      
+      // Check if username already exists
+      if (users.find(user => user.username === username)) {
+        alert('Username already exists. Please choose a different username.');
+        return;
+      }
+      
+      // Add new user
+      users.push(userData);
+      localStorage.setItem('kisanSetuUsers', JSON.stringify(users));
       
       alert('Registration successful! Please login with your credentials.');
       window.location.href = 'login.html';

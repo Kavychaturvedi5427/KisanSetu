@@ -287,7 +287,7 @@
     }
   }
 
-  // 🔐 Simple demo login
+  // 🔐 Login with registration data integration
   function handleLogin() {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
@@ -297,12 +297,33 @@
       return;
     }
 
-    if (username === 'admin' && password === 'password') {
+    // Check against registered users
+    const users = JSON.parse(localStorage.getItem('kisanSetuUsers') || '[]');
+    const user = users.find(u => u.username === username && u.password === password);
+    
+    if (user) {
       alert('Login successful!');
-      localStorage.setItem('username', username);
-      window.location.href = 'src/pages/FarmerDashboard.jsx';
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      
+      // Redirect based on user type
+      if (user.usertype === 'farmer') {
+        window.location.href = 'farmer-dashboard.html';
+      } else {
+        window.location.href = 'farmer-dashboard.html'; // All users go to farmer dashboard for now
+      }
     } else {
-      alert('Invalid credentials. Try admin/password');
+      // Demo credentials for testing
+      if (username === 'admin' && password === 'password') {
+        alert('Login successful!');
+        localStorage.setItem('currentUser', JSON.stringify({
+          fullname: 'Admin User',
+          username: 'admin',
+          usertype: 'farmer'
+        }));
+        window.location.href = 'farmer-dashboard.html';
+      } else {
+        alert('Invalid credentials. Please register first or use admin/password for demo.');
+      }
     }
   }
 
