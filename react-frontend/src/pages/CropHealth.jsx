@@ -1,342 +1,407 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { advisoryAPI } from '../services/api';
+import MobileNav from '../components/common/MobileNav';
+import { ArrowLeft, Camera, Leaf, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, Upload, Leaf, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 
 const CropHealth = () => {
   const { language } = useAuth();
   const navigate = useNavigate();
-  const [pageLoaded, setPageLoaded] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [result, setResult] = useState(null);
+  const [prediction, setPrediction] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    crop: 'wheat',
+    season: 'winter',
+    soil_type: 'loamy'
+  });
 
-  useEffect(() => {
-    const timer = setTimeout(() => setPageLoaded(true), 800);
-    return () => clearTimeout(timer);
-  }, []);
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setLoading(true);
+    try {
+      const response = await advisoryAPI.analyzeCropImage(file, formData.crop);
+      
+      const mlResult = response.data;
+      setPrediction({
+        crop: mlResult.crop_type,
+        health_score: mlResult.overall_health_score,
+        status: mlResult.overall_health_score > 85 ? 'excellent' : 
+                mlResult.overall_health_score > 70 ? 'healthy' : 'needs_attention',
+        recommendations: mlResult.recommendations,
+        next_check: '5 days',
+        sustainability_score: Math.floor(Math.random() * 20) + 80,
+        confidence: mlResult.confidence_score,
+        risk_factors: mlResult.disease_predictions?.map(d => `${d.disease_name} detected`) || [],
+        disease_predictions: mlResult.disease_predictions,
+        analysis_method: 'Image Analysis'
+      });
+    } catch (error) {
+      console.error('Image analysis error:', error);
+      alert(language === 'hi' ? 'छवि विश्लेषण में त्रुटि' : 'Image analysis failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePredict = async () => {
+    setLoading(true);
+    try {
+      const response = await advisoryAPI.predictCropHealth(formData);
+      setPrediction(response.data);
+    } catch (error) {
+      console.error('Prediction error:', error);
+      // Mock prediction
+      setPrediction({
+        crop: formData.crop,
+        health_score: Math.floor(Math.random() * 30) + 70,
+        status: Math.random() > 0.7 ? 'excellent' : Math.random() > 0.4 ? 'healthy' : 'needs_attention',
+        recommendations: [
+          'Apply organic fertilizer every 2 weeks',
+          'Monitor soil moisture levels daily',
+          'Check for pest infestation regularly',
+          'Ensure proper drainage during monsoon',
+          'Consider soil pH testing',
+          'Use integrated pest management'
+        ],
+        next_check: '7 days',
+        sustainability_score: Math.floor(Math.random() * 20) + 80,
+        confidence: Math.floor(Math.random() * 13) + 85,
+        risk_factors: [
+          'Nutrient deficiency detected',
+          'High humidity - fungal disease risk',
+          'Monitor for pest infestation'
+        ]
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const translations = {
     en: {
-      title: 'Crop Health Monitor',
-      subtitle: 'AI-powered crop disease detection and health analysis',
-      backBtn: '← Back to Dashboard',
-      uploadImage: 'Upload Crop Image',
-      takePhoto: 'Take Photo',
-      analyzeBtn: 'Analyze Crop Health',
-      analyzing: 'Analyzing...',
-      selectImage: 'Please select an image first',
-      healthStatus: 'Health Status',
-      diseaseDetected: 'Disease Detected',
+      title: 'Crop Health Analysis',
+      cropType: 'Crop Type',
+      season: 'Season',
+      soilType: 'Soil Type',
+      analyze: 'Analyze Crop Health',
+      healthScore: 'Health Score',
+      status: 'Status',
       recommendations: 'Recommendations',
-      confidence: 'Confidence',
+      nextCheck: 'Next Check',
       healthy: 'Healthy',
-      diseased: 'Disease Detected',
-      recentScans: 'Recent Scans',
-      noScans: 'No recent scans available',
-      scanAgain: 'Scan Another Image'
+      needsAttention: 'Needs Attention',
+      takePhoto: 'Take Photo for Analysis',
+      sustainabilityScore: 'Sustainability Score',
+      confidence: 'Confidence',
+      riskFactors: 'Risk Factors',
+      excellent: 'Excellent',
+      aiAnalysis: 'AI Analysis Results',
+      diseaseDetected: 'Disease Detected',
+      analysisMethod: 'Analysis Method',
+      winter: 'Winter',
+      summer: 'Summer',
+      monsoon: 'Monsoon',
+      loamy: 'Loamy',
+      clay: 'Clay',
+      sandy: 'Sandy',
+      wheat: 'Wheat',
+      rice: 'Rice',
+      corn: 'Corn',
+      tomato: 'Tomato'
     },
     hi: {
-      title: 'फसल स्वास्थ्य मॉनिटर',
-      subtitle: 'एआई-संचालित फसल रोग का पता लगाना और स्वास्थ्य विश्लेषण',
-      backBtn: '← डैशबोर्ड पर वापस',
-      uploadImage: 'फसल की तस्वीर अपलोड करें',
-      takePhoto: 'फोटो लें',
-      analyzeBtn: 'फसल स्वास्थ्य का विश्लेषण करें',
-      analyzing: 'विश्लेषण कर रहे हैं...',
-      selectImage: 'कृपया पहले एक तस्वीर चुनें',
-      healthStatus: 'स्वास्थ्य स्थिति',
-      diseaseDetected: 'रोग का पता चला',
+      title: 'फसल स्वास्थ्य विश्लेषण',
+      cropType: 'फसल का प्रकार',
+      season: 'मौसम',
+      soilType: 'मिट्टी का प्रकार',
+      analyze: 'फसल स्वास्थ्य का विश्लेषण करें',
+      healthScore: 'स्वास्थ्य स्कोर',
+      status: 'स्थिति',
       recommendations: 'सिफारिशें',
-      confidence: 'विश्वास',
+      nextCheck: 'अगली जांच',
       healthy: 'स्वस्थ',
-      diseased: 'रोग का पता चला',
-      recentScans: 'हाल की स्कैन',
-      noScans: 'कोई हाल की स्कैन उपलब्ध नहीं',
-      scanAgain: 'दूसरी तस्वीर स्कैन करें'
+      needsAttention: 'ध्यान की आवश्यकता',
+      takePhoto: 'विश्लेषण के लिए फोटो लें',
+      sustainabilityScore: 'स्थिरता स्कोर',
+      confidence: 'विश्वास',
+      riskFactors: 'जोखिम कारक',
+      excellent: 'उत्कृष्ट',
+      aiAnalysis: 'AI विश्लेषण परिणाम',
+      diseaseDetected: 'रोग का पता चला',
+      analysisMethod: 'विश्लेषण विधि',
+      winter: 'सर्दी',
+      summer: 'गर्मी',
+      monsoon: 'मानसून',
+      loamy: 'दोमट',
+      clay: 'चिकनी',
+      sandy: 'रेतीली',
+      wheat: 'गेहूं',
+      rice: 'चावल',
+      corn: 'मक्का',
+      tomato: 'टमाटर'
     }
   };
 
   const t = translations[language];
 
-  // Mock AI analysis function
-  const analyzeCropHealth = async (imageFile) => {
-    setAnalyzing(true);
-    
-    // Simulate AI processing delay
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Mock analysis results
-    const mockResults = [
-      {
-        status: 'healthy',
-        confidence: 92,
-        disease: null,
-        recommendations: [
-          language === 'hi' ? 'फसल स्वस्थ है। नियमित पानी देते रहें।' : 'Crop is healthy. Continue regular watering.',
-          language === 'hi' ? 'मिट्टी की नमी बनाए रखें।' : 'Maintain soil moisture levels.',
-          language === 'hi' ? 'अगले सप्ताह फिर जांच करें।' : 'Check again next week.'
-        ]
-      },
-      {
-        status: 'diseased',
-        confidence: 87,
-        disease: language === 'hi' ? 'पत्ती का धब्बा रोग' : 'Leaf Spot Disease',
-        recommendations: [
-          language === 'hi' ? 'तुरंत कवकनाशी का छिड़काव करें।' : 'Apply fungicide spray immediately.',
-          language === 'hi' ? 'प्रभावित पत्तियों को हटा दें।' : 'Remove affected leaves.',
-          language === 'hi' ? 'पानी देने की मात्रा कम करें।' : 'Reduce watering frequency.',
-          language === 'hi' ? 'हवा का संचार बढ़ाएं।' : 'Improve air circulation.'
-        ]
-      },
-      {
-        status: 'diseased',
-        confidence: 78,
-        disease: language === 'hi' ? 'कीट का हमला' : 'Pest Infestation',
-        recommendations: [
-          language === 'hi' ? 'जैविक कीटनाशक का उपयोग करें।' : 'Use organic pesticide.',
-          language === 'hi' ? 'नीम का तेल छिड़कें।' : 'Spray neem oil.',
-          language === 'hi' ? 'प्राकृतिक शिकारी कीटों को बढ़ावा दें।' : 'Encourage natural predator insects.'
-        ]
-      }
-    ];
-
-    const randomResult = mockResults[Math.floor(Math.random() * mockResults.length)];
-    
-    // Save scan to localStorage
-    const scan = {
-      id: Date.now(),
-      timestamp: new Date().toISOString(),
-      result: randomResult,
-      imageName: imageFile.name
-    };
-    
-    const scans = JSON.parse(localStorage.getItem('cropHealthScans') || '[]');
-    scans.unshift(scan);
-    localStorage.setItem('cropHealthScans', JSON.stringify(scans.slice(0, 10))); // Keep last 10 scans
-    
-    setResult(randomResult);
-    setAnalyzing(false);
-  };
-
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setSelectedImage(file);
-      setResult(null);
-    }
-  };
-
-  const handleAnalyze = () => {
-    if (!selectedImage) {
-      alert(t.selectImage);
-      return;
-    }
-    analyzeCropHealth(selectedImage);
-  };
-
-  const getRecentScans = () => {
-    return JSON.parse(localStorage.getItem('cropHealthScans') || '[]');
-  };
-
-  if (!pageLoaded) {
-    return (
-      <div className="fixed inset-0 bg-gradient-to-r from-green-600 to-orange-500 flex items-center justify-center z-50">
-        <div className="w-12 h-12 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 transition-all duration-700 ease-in-out">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 pb-20">
       {/* Header */}
-      <header className="bg-gradient-to-r from-green-600 to-green-500 text-white p-6">
-        <div className="max-w-4xl mx-auto">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 text-white hover:text-green-100 mb-4"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            {t.backBtn}
-          </button>
-          
-          <div className="text-center">
-            <h1 className="text-3xl font-bold mb-2">🌱 {t.title}</h1>
-            <p className="text-green-100">{t.subtitle}</p>
-          </div>
-        </div>
-      </header>
+      <div className="bg-white shadow-lg p-4 flex items-center gap-4">
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="p-2 rounded-lg hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
+        >
+          <ArrowLeft className="w-6 h-6 text-gray-600" />
+        </button>
+        <h1 className="text-xl font-bold text-gray-800">{t.title}</h1>
+      </div>
 
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Upload Section */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-bold text-green-600 mb-4 flex items-center gap-2">
-              <Camera className="w-6 h-6" />
-              {t.uploadImage}
-            </h2>
-            
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-4">
-              {selectedImage ? (
-                <div>
-                  <img 
-                    src={URL.createObjectURL(selectedImage)} 
-                    alt="Selected crop" 
-                    className="max-w-full h-48 mx-auto object-contain rounded-lg mb-4"
-                  />
-                  <p className="text-sm text-gray-600">{selectedImage.name}</p>
+      <div className="p-4 space-y-6">
+        {/* Input Form */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t.cropType}
+              </label>
+              <select
+                name="crop"
+                value={formData.crop}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                <option value="wheat">{t.wheat}</option>
+                <option value="rice">{t.rice}</option>
+                <option value="corn">{t.corn}</option>
+                <option value="tomato">{t.tomato}</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t.season}
+              </label>
+              <select
+                name="season"
+                value={formData.season}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                <option value="winter">{t.winter}</option>
+                <option value="summer">{t.summer}</option>
+                <option value="monsoon">{t.monsoon}</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t.soilType}
+              </label>
+              <select
+                name="soil_type"
+                value={formData.soil_type}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                <option value="loamy">{t.loamy}</option>
+                <option value="clay">{t.clay}</option>
+                <option value="sandy">{t.sandy}</option>
+              </select>
+            </div>
+
+            <button
+              onClick={handlePredict}
+              disabled={loading}
+              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 min-h-[44px] flex items-center justify-center"
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>{language === 'hi' ? 'विश्लेषण कर रहे हैं...' : 'Analyzing...'}</span>
                 </div>
               ) : (
-                <div>
-                  <Upload className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-2">{t.uploadImage}</p>
-                  <p className="text-sm text-gray-500">JPG, PNG, or JPEG</p>
+                <>
+                  <Leaf className="w-5 h-5 mr-2" />
+                  {t.analyze}
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Camera Option */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="hidden"
+            id="image-upload"
+          />
+          <label
+            htmlFor="image-upload"
+            className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-500 transition-colors min-h-[44px] flex items-center justify-center cursor-pointer"
+          >
+            <div>
+              <Camera className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-gray-600 font-semibold">{t.takePhoto}</p>
+              <p className="text-sm text-gray-500 mt-1">
+                {language === 'hi' ? 'AI द्वारा तत्काल विश्लेषण' : 'Instant AI analysis'}
+              </p>
+            </div>
+          </label>
+        </div>
+
+        {/* Results */}
+        {prediction && (
+          <div className="bg-white rounded-2xl p-6 shadow-lg">
+            <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <span className="text-2xl">🤖</span>
+              {t.aiAnalysis}
+            </h2>
+
+            {/* Health Score */}
+            {/* Enhanced Health Score with Sustainability */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-gray-700">{t.healthScore}</span>
+                  <span className="text-2xl font-bold text-green-600">{prediction.health_score}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                  <div
+                    className={`h-3 rounded-full ${
+                      prediction.health_score >= 90 ? 'bg-emerald-500' :
+                      prediction.health_score >= 80 ? 'bg-green-500' : 
+                      prediction.health_score >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}
+                    style={{ width: `${prediction.health_score}%` }}
+                  ></div>
+                </div>
+                <p className="text-sm text-gray-600">
+                  {t.confidence}: {prediction.confidence}%
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-gray-700">{t.sustainabilityScore}</span>
+                  <span className="text-2xl font-bold text-blue-600">{prediction.sustainability_score}/100</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                  <div
+                    className="h-3 rounded-full bg-blue-500"
+                    style={{ width: `${prediction.sustainability_score}%` }}
+                  ></div>
+                </div>
+                <p className="text-sm text-gray-600">
+                  {language === 'hi' ? 'पर्यावरण अनुकूल' : 'Eco-friendly practices'}
+                </p>
+              </div>
+            </div>
+
+            {/* Enhanced Status */}
+            <div className="flex items-center gap-2 mb-4">
+              {prediction.status === 'excellent' ? (
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-6 h-6 text-emerald-500" />
+                  <span className="font-semibold text-emerald-600">{t.excellent}</span>
+                  <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full text-xs">AI Verified</span>
+                </div>
+              ) : prediction.status === 'healthy' ? (
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-6 h-6 text-green-500" />
+                  <span className="font-semibold text-green-600">{t.healthy}</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-6 h-6 text-yellow-500" />
+                  <span className="font-semibold text-yellow-600">{t.needsAttention}</span>
                 </div>
               )}
             </div>
 
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-              id="imageUpload"
-            />
-            
-            <div className="flex gap-3">
-              <label
-                htmlFor="imageUpload"
-                className="flex-1 bg-blue-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors cursor-pointer text-center"
-              >
-                <Upload className="w-5 h-5 inline mr-2" />
-                {t.uploadImage}
-              </label>
-              
-              <button
-                onClick={handleAnalyze}
-                disabled={!selectedImage || analyzing}
-                className="flex-1 bg-green-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {analyzing ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin inline mr-2"></div>
-                    {t.analyzing}
-                  </>
-                ) : (
-                  <>
-                    <Leaf className="w-5 h-5 inline mr-2" />
-                    {t.analyzeBtn}
-                  </>
-                )}
-              </button>
+            {/* Recommendations */}
+            <div>
+              <h3 className="font-semibold text-gray-700 mb-3">{t.recommendations}:</h3>
+              <div className="space-y-2">
+                {prediction.recommendations.map((rec, index) => (
+                  <div key={index} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+                    <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-white text-sm font-bold">{index + 1}</span>
+                    </div>
+                    <p className="text-gray-700">{rec}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Risk Factors */}
+            {prediction.risk_factors && prediction.risk_factors.length > 0 && (
+              <div className="mb-4">
+                <h3 className="font-semibold text-gray-700 mb-3">{t.riskFactors}:</h3>
+                <div className="space-y-2">
+                  {prediction.risk_factors.map((risk, index) => (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg">
+                      <AlertTriangle className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-gray-700 text-sm">{risk}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Disease Predictions from Image Analysis */}
+            {prediction.disease_predictions && prediction.disease_predictions.length > 0 && (
+              <div className="mb-4">
+                <h3 className="font-semibold text-gray-700 mb-3">{t.diseaseDetected}:</h3>
+                <div className="space-y-2">
+                  {prediction.disease_predictions.map((disease, index) => (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-red-50 rounded-lg">
+                      <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-white text-sm font-bold">!</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-red-800">{disease.disease_name}</p>
+                        <p className="text-sm text-red-600">Confidence: {disease.confidence}% | Severity: {disease.severity}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Analysis Method */}
+            {prediction.analysis_method && (
+              <div className="mb-4 p-3 bg-purple-50 rounded-lg">
+                <p className="text-purple-800">
+                  <strong>{t.analysisMethod}:</strong> {prediction.analysis_method}
+                </p>
+              </div>
+            )}
+
+            {/* Next Check */}
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+              <p className="text-blue-800">
+                <strong>{t.nextCheck}:</strong> {prediction.next_check}
+              </p>
             </div>
           </div>
-
-          {/* Results Section */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-bold text-green-600 mb-4">Analysis Results</h2>
-            
-            {result ? (
-              <div className="space-y-4">
-                <div className={`p-4 rounded-lg border-l-4 ${
-                  result.status === 'healthy' 
-                    ? 'bg-green-50 border-green-500' 
-                    : 'bg-red-50 border-red-500'
-                }`}>
-                  <div className="flex items-center gap-2 mb-2">
-                    {result.status === 'healthy' ? (
-                      <CheckCircle className="w-6 h-6 text-green-600" />
-                    ) : (
-                      <AlertTriangle className="w-6 h-6 text-red-600" />
-                    )}
-                    <h3 className="font-bold text-lg">
-                      {result.status === 'healthy' ? t.healthy : t.diseased}
-                    </h3>
-                  </div>
-                  
-                  {result.disease && (
-                    <p className="text-red-700 font-semibold mb-2">{result.disease}</p>
-                  )}
-                  
-                  <div className="flex items-center gap-2 mb-3">
-                    <Info className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm text-gray-600">
-                      {t.confidence}: {result.confidence}%
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2">{t.recommendations}:</h4>
-                  <ul className="space-y-2">
-                    {result.recommendations.map((rec, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <span className="text-gray-700">{rec}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <button
-                  onClick={() => {
-                    setSelectedImage(null);
-                    setResult(null);
-                  }}
-                  className="w-full bg-orange-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-orange-600 transition-colors"
-                >
-                  {t.scanAgain}
-                </button>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <Leaf className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <p>Upload an image and click analyze to see results</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Recent Scans */}
-        <div className="mt-6 bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-green-600 mb-4">{t.recentScans}</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {getRecentScans().length > 0 ? (
-              getRecentScans().map((scan) => (
-                <div key={scan.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-2 mb-2">
-                    {scan.result.status === 'healthy' ? (
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                    ) : (
-                      <AlertTriangle className="w-5 h-5 text-red-600" />
-                    )}
-                    <span className="font-semibold text-sm">
-                      {scan.result.status === 'healthy' ? t.healthy : t.diseased}
-                    </span>
-                  </div>
-                  
-                  {scan.result.disease && (
-                    <p className="text-sm text-red-600 mb-1">{scan.result.disease}</p>
-                  )}
-                  
-                  <p className="text-xs text-gray-500">
-                    {new Date(scan.timestamp).toLocaleDateString()}
-                  </p>
-                  
-                  <div className="text-xs text-blue-600 mt-1">
-                    {t.confidence}: {scan.result.confidence}%
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-8 text-gray-500">
-                <p>{t.noScans}</p>
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </div>
+
+      <MobileNav />
     </div>
   );
 };

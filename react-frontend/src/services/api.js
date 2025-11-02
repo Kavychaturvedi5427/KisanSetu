@@ -113,14 +113,14 @@ export const weatherAPI = {
 
 // Marketplace API
 export const marketplaceAPI = {
-  getProducts: (params) => api.get('/marketplace/products', { params }),
-  getProduct: (id) => api.get(`/marketplace/products/${id}`),
-  getCategories: () => api.get('/marketplace/categories'),
-  createOrder: (data) => api.post('/marketplace/orders', data, {
+  getProducts: (params) => api.get('/api/marketplace/products', { params }),
+  getProduct: (id) => api.get(`/api/marketplace/products/${id}`),
+  getCategories: () => api.get('/api/marketplace/categories'),
+  createOrder: (data) => api.post('/api/marketplace/orders', data, {
     headers: { 'Content-Type': 'application/json' }
   }),
-  getOrders: () => api.get('/marketplace/orders'),
-  getOrder: (id) => api.get(`/marketplace/orders/${id}`),
+  getOrders: () => api.get('/api/marketplace/orders'),
+  getOrder: (id) => api.get(`/api/marketplace/orders/${id}`),
 };
 
 // Cart utilities
@@ -154,37 +154,51 @@ export const cartUtils = {
 
 // Farmers API
 export const farmersAPI = {
-  getDashboard: () => api.get('/farmers/dashboard'),
-  getCrops: () => api.get('/farmers/crops'),
-  createCrop: (data) => api.post('/farmers/crops', data),
-  updateCrop: (id, data) => api.put(`/farmers/crops/${id}`, data),
-  deleteCrop: (id) => api.delete(`/farmers/crops/${id}`),
+  getDashboard: () => api.get('/api/farmers/dashboard'),
+  getCrops: () => api.get('/api/farmers/crops'),
+  createCrop: (data) => api.post('/api/farmers/crops', data),
+  updateCrop: (id, data) => api.put(`/api/farmers/crops/${id}`, data),
+  deleteCrop: (id) => api.delete(`/api/farmers/crops/${id}`),
 };
 
 // Advisory API
 export const advisoryAPI = {
-  predictCropHealth: (data) => api.post('/advisory/predict', null, { params: data }),
-  getWeather: (city) => api.get('/advisory/weather', { params: { city } }),
-  getRecommendations: (season) => api.get('/advisory/recommendations', { params: { season } }),
+  predictCropHealth: (data) => api.post('/api/advisory/predict', null, { params: data }),
+  getWeather: (city) => api.get('/api/advisory/weather', { params: { city } }),
+  getRecommendations: (season, location, language) => api.get('/api/advisory/recommendations', { 
+    params: { season, location, language } 
+  }),
+  getSustainabilityMetrics: (crop, area_hectares, farming_method) => 
+    api.get('/api/advisory/sustainability-metrics', { 
+      params: { crop, area_hectares, farming_method } 
+    }),
+  analyzeCropImage: (file, crop_type) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('crop_type', crop_type);
+    return api.post('/api/advisory/crop-image-analysis', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
 };
 
 // Admin API
 export const adminAPI = {
-  getStats: () => api.get('/admin/stats'),
-  getUsers: (params) => api.get('/admin/users', { params }),
-  getAllUsers: () => api.get('/admin/all-users'),
+  getStats: () => api.get('/api/admin/stats'),
+  getUsers: (params) => api.get('/api/admin/users', { params }),
+  getAllUsers: () => api.get('/api/admin/all-users'),
 };
 
 // Location API
 export const locationAPI = {
   getNearbyUsers: (latitude, longitude, radius = 50) => 
-    api.get('/location/nearby-users', { 
+    api.get('/api/location/nearby-users', { 
       params: { latitude, longitude, radius } 
     }),
   updateLocation: (locationData) => 
-    api.post('/location/update-location', locationData),
+    api.post('/api/location/update-location', locationData),
   getUserStats: (userId) => 
-    api.get(`/location/user-stats/${userId}`),
+    api.get(`/api/location/user-stats/${userId}`),
 };
 
 // Users API

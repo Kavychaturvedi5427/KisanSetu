@@ -6,7 +6,7 @@ import { farmersAPI, advisoryAPI } from '../../services/api';
 import MobileNav from '../common/MobileNav';
 import LocationService from '../common/LocationService';
 import { 
-  Home, Leaf, Cloud, Store, ShoppingCart, Users, Lightbulb, User, Settings, LogOut, Menu, MapPin
+  Home, Leaf, Cloud, Store, ShoppingCart, Users, Lightbulb, User, Settings, LogOut, Menu, MapPin, Brain
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -200,13 +200,14 @@ const Dashboard = () => {
   const baseMenuItems = [
     { icon: Home, label: t.menuHome, action: () => {} },
     { icon: Leaf, label: t.menuCrop, action: () => navigate('/crop-health') },
+    { icon: Brain, label: language === 'hi' ? 'AI विश्लेषण' : 'AI Analysis', action: () => navigate('/ai-analysis') },
     { icon: Users, label: nearbyLabel, action: () => navigate('/nearby') },
     { icon: Cloud, label: t.menuWeather, action: () => navigate('/weather') },
     { icon: Store, label: t.menuMarket, action: () => navigate('/marketplace') },
     { icon: ShoppingCart, label: language === 'hi' ? 'मेरे ऑर्डर' : 'My Orders', action: () => navigate('/orders') },
     { icon: Lightbulb, label: t.menuAdvisory, action: () => navigate('/advisory') },
     { icon: User, label: t.menuProfile, action: () => navigate('/profile') },
-    { icon: Settings, label: t.menuSettings, action: () => alert('⚙️ सेटिंग्स: ऐप की सेटिंग्स बदलें - जल्दी आ रहा है!') },
+    { icon: Settings, label: t.menuSettings, action: () => navigate('/settings') },
   ];
 
   // Add admin-only menu items
@@ -307,18 +308,18 @@ const Dashboard = () => {
               <button
                 key={index}
                 onClick={item.action}
-                className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/20 transition-all duration-200 text-left hover:translate-x-1 hover:shadow-lg"
+                className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/20 transition-all duration-200 text-left hover:translate-x-1 hover:shadow-lg min-h-[44px] touch-manipulation"
               >
-                <item.icon className="w-5 h-5 text-yellow-300" />
-                <span className="text-base">{item.label}</span>
+                <item.icon className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-300 flex-shrink-0" />
+                <span className="text-sm sm:text-base truncate">{item.label}</span>
               </button>
             ))}
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/20 transition-all duration-200 text-left hover:translate-x-1 hover:shadow-lg"
+              className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/20 transition-all duration-200 text-left hover:translate-x-1 hover:shadow-lg min-h-[44px] touch-manipulation"
             >
-              <LogOut className="w-5 h-5 text-yellow-300" />
-              <span className="text-base">{t.menuLogout}</span>
+              <LogOut className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-300 flex-shrink-0" />
+              <span className="text-sm sm:text-base truncate">{t.menuLogout}</span>
             </button>
           </nav>
         </div>
@@ -331,7 +332,7 @@ const Dashboard = () => {
           <div className="flex items-center gap-2 sm:gap-6">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 rounded-md hover:bg-gray-100 text-green-600 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="lg:hidden p-2 rounded-md hover:bg-gray-100 text-green-600 min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation"
             >
               <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>

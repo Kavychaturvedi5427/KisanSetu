@@ -1,340 +1,269 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLocationContext } from '../contexts/LocationContext';
+import MobileNav from '../components/common/MobileNav';
+import { ArrowLeft, User, Mail, Phone, MapPin, Edit, Save, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Mail, Phone, MapPin, Calendar, Edit3, Save, X } from 'lucide-react';
 
 const Profile = () => {
-  const { user, language } = useAuth();
+  const { user, updateUser, language, logout } = useAuth();
+  const { location } = useLocationContext();
   const navigate = useNavigate();
-  const [pageLoaded, setPageLoaded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    fullname: '',
-    email: '',
-    phone: '',
-    usertype: '',
-    state: '',
-    district: ''
+  const [formData, setFormData] = useState({
+    full_name: user?.full_name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    user_type: user?.user_type || 'farmer'
   });
 
   useEffect(() => {
-    const timer = setTimeout(() => setPageLoaded(true), 800);
     if (user) {
-      setProfileData({
-        fullname: user.fullname || '',
+      setFormData({
+        full_name: user.full_name || '',
         email: user.email || '',
         phone: user.phone || '',
-        usertype: user.usertype || '',
-        state: user.state || '',
-        district: user.district || ''
+        user_type: user.user_type || 'farmer'
       });
     }
-    return () => clearTimeout(timer);
   }, [user]);
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSave = () => {
+    updateUser(formData);
+    setIsEditing(false);
+    alert(language === 'hi' ? 'प्रोफाइल अपडेट हो गई!' : 'Profile updated successfully!');
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      full_name: user?.full_name || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
+      user_type: user?.user_type || 'farmer'
+    });
+    setIsEditing(false);
+  };
+
+  const handleLogout = () => {
+    if (confirm(language === 'hi' ? 'क्या आप वाकई लॉग आउट करना चाहते हैं?' : 'Are you sure you want to logout?')) {
+      logout();
+      navigate('/login');
+    }
+  };
 
   const translations = {
     en: {
       title: 'My Profile',
-      subtitle: 'Manage your account information',
-      backBtn: '← Back to Dashboard',
-      editProfile: 'Edit Profile',
-      saveChanges: 'Save Changes',
-      cancelEdit: 'Cancel',
+      edit: 'Edit Profile',
+      save: 'Save Changes',
+      cancel: 'Cancel',
       fullName: 'Full Name',
-      email: 'Email Address',
+      email: 'Email',
       phone: 'Phone Number',
       userType: 'User Type',
-      state: 'State',
-      district: 'District',
-      memberSince: 'Member Since',
-      accountStats: 'Account Statistics',
-      totalLogins: 'Total Logins',
-      lastLogin: 'Last Login',
-      accountCreated: 'Account Created',
+      location: 'Location',
+      joinedOn: 'Joined On',
+      logout: 'Logout',
       farmer: 'Farmer',
       consumer: 'Consumer',
       vendor: 'Vendor',
-      admin: 'Admin',
-      profileUpdated: 'Profile updated successfully!',
-      comingSoon: 'More profile features coming soon!'
+      admin: 'Admin'
     },
     hi: {
       title: 'मेरी प्रोफाइल',
-      subtitle: 'अपनी खाता जानकारी प्रबंधित करें',
-      backBtn: '← डैशबोर्ड पर वापस',
-      editProfile: 'प्रोफाइल संपादित करें',
-      saveChanges: 'परिवर्तन सहेजें',
-      cancelEdit: 'रद्द करें',
+      edit: 'प्रोफाइल संपादित करें',
+      save: 'परिवर्तन सहेजें',
+      cancel: 'रद्द करें',
       fullName: 'पूरा नाम',
-      email: 'ईमेल पता',
+      email: 'ईमेल',
       phone: 'फोन नंबर',
       userType: 'उपयोगकर्ता प्रकार',
-      state: 'राज्य',
-      district: 'जिला',
-      memberSince: 'सदस्य बने',
-      accountStats: 'खाता आंकड़े',
-      totalLogins: 'कुल लॉगिन',
-      lastLogin: 'अंतिम लॉगिन',
-      accountCreated: 'खाता बनाया गया',
+      location: 'स्थान',
+      joinedOn: 'शामिल हुए',
+      logout: 'लॉग आउट',
       farmer: 'किसान',
       consumer: 'उपभोक्ता',
       vendor: 'विक्रेता',
-      admin: 'एडमिन',
-      profileUpdated: 'प्रोफाइल सफलतापूर्वक अपडेट हो गई!',
-      comingSoon: 'अधिक प्रोफाइल सुविधाएं जल्द आ रही हैं!'
+      admin: 'एडमिन'
     }
   };
 
   const t = translations[language];
 
-  const handleInputChange = (field, value) => {
-    setProfileData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleSave = () => {
-    // Update user data in localStorage
-    const users = JSON.parse(localStorage.getItem('kisanSetuUsers') || '[]');
-    const updatedUsers = users.map(u => 
-      u.username === user.username ? { ...u, ...profileData } : u
-    );
-    localStorage.setItem('kisanSetuUsers', JSON.stringify(updatedUsers));
-    
-    // Update current user
-    const updatedUser = { ...user, ...profileData };
-    localStorage.setItem('kisanSetuUser', JSON.stringify(updatedUser));
-    
-    setIsEditing(false);
-    alert(t.profileUpdated);
-  };
-
-  const getUserTypeLabel = (type) => {
-    const typeMap = {
-      farmer: t.farmer,
-      consumer: t.consumer,
-      vendor: t.vendor,
-      admin: t.admin
-    };
-    return typeMap[type] || type;
-  };
-
-  if (!pageLoaded) {
-    return (
-      <div className="fixed inset-0 bg-gradient-to-r from-green-600 to-orange-500 flex items-center justify-center z-50">
-        <div className="w-12 h-12 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 transition-all duration-700 ease-in-out">
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
-      <header className="bg-gradient-to-r from-green-600 to-green-500 text-white p-6">
-        <div className="max-w-4xl mx-auto">
+      <div className="bg-white shadow-lg p-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 text-white hover:text-green-100 mb-4"
+            className="p-2 rounded-lg hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation"
           >
-            <ArrowLeft className="w-5 h-5" />
-            {t.backBtn}
+            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
           </button>
-          
-          <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold text-gray-800">{t.title}</h1>
+        </div>
+        
+        {!isEditing ? (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors min-h-[44px] touch-manipulation"
+          >
+            <Edit className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+            <span className="hidden sm:inline text-sm sm:text-base">{t.edit}</span>
+          </button>
+        ) : (
+          <div className="flex gap-2">
+            <button
+              onClick={handleSave}
+              className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors min-h-[44px] touch-manipulation"
+            >
+              <Save className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <span className="hidden sm:inline text-sm sm:text-base">{t.save}</span>
+            </button>
+            <button
+              onClick={handleCancel}
+              className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors min-h-[44px] touch-manipulation"
+            >
+              <X className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <span className="hidden sm:inline text-sm sm:text-base">{t.cancel}</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="p-4 space-y-6">
+        {/* Profile Picture */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg text-center">
+          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <User className="w-12 h-12 text-green-600" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-800">{user?.full_name || user?.username}</h2>
+          <p className="text-gray-600 capitalize">{user?.user_type || 'farmer'}</p>
+        </div>
+
+        {/* Profile Information */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg">
+          <div className="space-y-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2">👤 {t.title}</h1>
-              <p className="text-green-100">{t.subtitle}</p>
-            </div>
-            
-            <div className="flex gap-3">
-              {!isEditing ? (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center gap-2"
-                >
-                  <Edit3 className="w-4 h-4" />
-                  {t.editProfile}
-                </button>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <User className="w-4 h-4 inline mr-2" />
+                {t.fullName}
+              </label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
               ) : (
-                <>
-                  <button
-                    onClick={handleSave}
-                    className="bg-orange-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-orange-600 transition-colors flex items-center gap-2"
-                  >
-                    <Save className="w-4 h-4" />
-                    {t.saveChanges}
-                  </button>
-                  <button
-                    onClick={() => setIsEditing(false)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors flex items-center gap-2"
-                  >
-                    <X className="w-4 h-4" />
-                    {t.cancelEdit}
-                  </button>
-                </>
+                <p className="px-4 py-3 bg-gray-50 rounded-lg text-gray-800">{user?.full_name || 'Not provided'}</p>
               )}
             </div>
-          </div>
-        </div>
-      </header>
 
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Profile Card */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
-            <div className="flex items-center gap-4 mb-6">
-              <img src="/kisansetu.png" alt="Kisan Setu Logo" className="w-20 h-20 rounded-full object-contain" />
-              <div>
-                <h2 className="text-2xl font-bold text-green-600">{profileData.fullname || 'User'}</h2>
-                <p className="text-gray-600">{getUserTypeLabel(profileData.usertype)}</p>
-              </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <Mail className="w-4 h-4 inline mr-2" />
+                {t.email}
+              </label>
+              {isEditing ? (
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              ) : (
+                <p className="px-4 py-3 bg-gray-50 rounded-lg text-gray-800">{user?.email || 'Not provided'}</p>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  <User className="w-4 h-4 inline mr-2" />
-                  {t.fullName}
-                </label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={profileData.fullname}
-                    onChange={(e) => handleInputChange('fullname', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                ) : (
-                  <p className="text-gray-800 bg-gray-50 px-4 py-3 rounded-lg">{profileData.fullname || 'Not provided'}</p>
-                )}
-              </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <Phone className="w-4 h-4 inline mr-2" />
+                {t.phone}
+              </label>
+              {isEditing ? (
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              ) : (
+                <p className="px-4 py-3 bg-gray-50 rounded-lg text-gray-800">{user?.phone || 'Not provided'}</p>
+              )}
+            </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  <Mail className="w-4 h-4 inline mr-2" />
-                  {t.email}
-                </label>
-                {isEditing ? (
-                  <input
-                    type="email"
-                    value={profileData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                ) : (
-                  <p className="text-gray-800 bg-gray-50 px-4 py-3 rounded-lg">{profileData.email || 'Not provided'}</p>
-                )}
-              </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t.userType}
+              </label>
+              {isEditing ? (
+                <select
+                  name="user_type"
+                  value={formData.user_type}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="farmer">{t.farmer}</option>
+                  <option value="consumer">{t.consumer}</option>
+                  <option value="vendor">{t.vendor}</option>
+                  <option value="admin">{t.admin}</option>
+                </select>
+              ) : (
+                <p className="px-4 py-3 bg-gray-50 rounded-lg text-gray-800 capitalize">
+                  {t[user?.user_type] || user?.user_type || 'farmer'}
+                </p>
+              )}
+            </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  <Phone className="w-4 h-4 inline mr-2" />
-                  {t.phone}
-                </label>
-                {isEditing ? (
-                  <input
-                    type="tel"
-                    value={profileData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                ) : (
-                  <p className="text-gray-800 bg-gray-50 px-4 py-3 rounded-lg">{profileData.phone || 'Not provided'}</p>
-                )}
-              </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <MapPin className="w-4 h-4 inline mr-2" />
+                {t.location}
+              </label>
+              <p className="px-4 py-3 bg-gray-50 rounded-lg text-gray-800">
+                {location ? `${location.city}, ${location.state}, ${location.country}` : 'Location not available'}
+              </p>
+            </div>
 
+            {user?.created_at && (
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  <MapPin className="w-4 h-4 inline mr-2" />
-                  {t.state}
+                  {t.joinedOn}
                 </label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={profileData.state}
-                    onChange={(e) => handleInputChange('state', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                ) : (
-                  <p className="text-gray-800 bg-gray-50 px-4 py-3 rounded-lg">{profileData.state || 'Not provided'}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  <MapPin className="w-4 h-4 inline mr-2" />
-                  {t.district}
-                </label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={profileData.district}
-                    onChange={(e) => handleInputChange('district', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                ) : (
-                  <p className="text-gray-800 bg-gray-50 px-4 py-3 rounded-lg">{profileData.district || 'Not provided'}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  {t.userType}
-                </label>
-                <p className="text-gray-800 bg-gray-50 px-4 py-3 rounded-lg">
-                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    profileData.usertype === 'farmer' ? 'bg-green-100 text-green-800' :
-                    profileData.usertype === 'vendor' ? 'bg-blue-100 text-blue-800' :
-                    profileData.usertype === 'admin' ? 'bg-purple-100 text-purple-800' :
-                    'bg-orange-100 text-orange-800'
-                  }`}>
-                    {getUserTypeLabel(profileData.usertype)}
-                  </span>
+                <p className="px-4 py-3 bg-gray-50 rounded-lg text-gray-800">
+                  {new Date(user.created_at).toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-US')}
                 </p>
               </div>
-            </div>
-          </div>
-
-          {/* Stats Card */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-lg font-bold text-green-600 mb-4">{t.accountStats}</h3>
-              
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-green-500" />
-                  <div>
-                    <p className="text-sm text-gray-600">{t.memberSince}</p>
-                    <p className="font-semibold">
-                      {user?.registrationDate 
-                        ? new Date(user.registrationDate).toLocaleDateString()
-                        : 'N/A'
-                      }
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
-                    📊
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">{t.totalLogins}</p>
-                    <p className="font-semibold">
-                      {JSON.parse(localStorage.getItem('kisanSetuUserStats') || '{}')[user?.username]?.totalLogins || 0}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-xl text-center">
-              <div className="text-3xl mb-3">🚀</div>
-              <p className="font-semibold">{t.comingSoon}</p>
-            </div>
+            )}
           </div>
         </div>
+
+        {/* Logout Button */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg">
+          <button
+            onClick={handleLogout}
+            className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors min-h-[44px]"
+          >
+            {t.logout}
+          </button>
+        </div>
       </div>
+
+      <MobileNav />
     </div>
   );
 };

@@ -1,288 +1,237 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLocationContext } from '../contexts/LocationContext';
+import { cartUtils, marketplaceAPI } from '../services/api';
+import { ArrowLeft, MapPin, Phone, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { marketplaceAPI } from '../services/api';
-import MobileNav from '../components/common/MobileNav';
-import { ArrowLeft, ShoppingCart } from 'lucide-react';
 
 const Checkout = () => {
   const { user, language } = useAuth();
+  const { location } = useLocationContext();
   const navigate = useNavigate();
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('card');
-  const [address, setAddress] = useState('');
+  const [orderData, setOrderData] = useState({
+    name: user?.full_name || '',
+    phone: user?.phone || '',
+    address: location ? `${location.city}, ${location.state}` : '',
+    notes: ''
+  });
 
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem('kisanSetuCart') || '[]');
-    setCart(savedCart);
-    
-    // Check if first time user (no previous orders)
-    const orderHistory = JSON.parse(localStorage.getItem('kisanSetuOrderHistory') || '[]');
-    setIsFirstTimeUser(orderHistory.length === 0);
+    setCart(cartUtils.getCart());
   }, []);
 
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-  const discount = isFirstTimeUser ? subtotal * 0.2 : 0;
-  const deliveryFee = subtotal > 1000 ? 0 : 50;
-  const total = subtotal - discount + deliveryFee;
+  const total = cartUtils.getCartTotal();
 
-  const translations = {
-    en: {
-      title: 'Checkout',
-      orderSummary: 'Order Summary',
-      subtotal: 'Subtotal',
-      discount: 'First Time User Discount (20%)',
-      delivery: 'Delivery Fee',
-      total: 'Total Amount',
-      paymentMethod: 'Payment Method',
-      card: 'Credit/Debit Card',
-      upi: 'UPI Payment',
-      cod: 'Cash on Delivery',
-      address: 'Delivery Address',
-      placeOrder: 'Place Order',
-      backToCart: 'Back to Cart',
-      free: 'FREE'
-    },
-    hi: {
-      title: 'चेकआउट',
-      orderSummary: 'ऑर्डर सारांश',
-      subtotal: 'उप-योग',
-      discount: 'पहली बार उपयोगकर्ता छूट (20%)',
-      delivery: 'डिलीवरी शुल्क',
-      total: 'कुल राशि',
-      paymentMethod: 'भुगतान विधि',
-      card: 'क्रेडिट/डेबिट कार्ड',
-      upi: 'UPI भुगतान',
-      cod: 'कैश ऑन डिलीवरी',
-      address: 'डिलीवरी पता',
-      placeOrder: 'ऑर्डर करें',
-      backToCart: 'कार्ट पर वापस',
-      free: 'मुफ्त'
-    }
+  const handleInputChange = (e) => {
+    setOrderData({
+      ...orderData,
+      [e.target.name]: e.target.value
+    });
   };
 
-  const t = translations[language];
-
   const handlePlaceOrder = async () => {
-    if (!address.trim()) {
-      alert('Please enter delivery address');
+    if (!orderData.name || !orderData.phone || !orderData.address) {
+      alert(language === 'hi' ? 'कृपया सभी आवश्यक फ़ील्ड भरें' : 'Please fill all required fields');
+      return;
+    }
+
+    if (cart.length === 0) {
+      alert(language === 'hi' ? 'आपका कार्ट खाली है' : 'Your cart is empty');
       return;
     }
 
     setLoading(true);
     try {
-      const orderData = {
-        items: cart.map(item => ({
-          product_id: item.id,
-          quantity: item.quantity || 1,
-          price: item.price
-        })),
-        delivery_address: address,
-        payment_method: paymentMethod,
-        discount_applied: discount,
-        total_amount: total
-      };
+      const orderItems = cart.map(item => ({
+        product_id: item.id,
+        quantity: item.quantity,
+        price: item.price
+      }));
 
-      await marketplaceAPI.createOrder(orderData);
-      
-      // Save to order history
-      const orderHistory = JSON.parse(localStorage.getItem('kisanSetuOrderHistory') || '[]');
-      orderHistory.push({
-        ...orderData,
-        order_date: new Date().toISOString(),
-        order_id: 'ORD' + Date.now()
+      await marketplaceAPI.createOrder({
+        items: orderItems,
+        delivery_address: orderData.address,
+        phone: orderData.phone,
+        notes: orderData.notes
       });
-      localStorage.setItem('kisanSetuOrderHistory', JSON.stringify(orderHistory));
-      
-      // Clear cart
-      localStorage.removeItem('kisanSetuCart');
-      
-      alert('Order placed successfully! 🎉');
-      navigate('/dashboard');
+
+      cartUtils.clearCart();
+      alert(language === 'hi' ? '🎉 ऑर्डर सफलतापूर्वक दिया गया!' : '🎉 Order placed successfully!');
+      navigate('/orders');
     } catch (error) {
       console.error('Order error:', error);
-      alert('Order failed. Please try again.');
+      alert(language === 'hi' ? 'ऑर्डर देने में त्रुटि हुई' : 'Error placing order');
     } finally {
       setLoading(false);
     }
   };
 
+  const translations = {
+    en: {
+      title: 'Checkout',
+      orderSummary: 'Order Summary',
+      deliveryInfo: 'Delivery Information',
+      fullName: 'Full Name',
+      phoneNumber: 'Phone Number',
+      address: 'Delivery Address',
+      notes: 'Special Notes (Optional)',
+      total: 'Total Amount',
+      placeOrder: 'Place Order',
+      emptyCart: 'Your cart is empty',
+      goToMarket: 'Go to Marketplace'
+    },
+    hi: {
+      title: 'चेकआउट',
+      orderSummary: 'ऑर्डर सारांश',
+      deliveryInfo: 'डिलीवरी जानकारी',
+      fullName: 'पूरा नाम',
+      phoneNumber: 'फोन नंबर',
+      address: 'डिलीवरी पता',
+      notes: 'विशेष टिप्पणी (वैकल्पिक)',
+      total: 'कुल राशि',
+      placeOrder: 'ऑर्डर दें',
+      emptyCart: 'आपका कार्ट खाली है',
+      goToMarket: 'बाजार में जाएं'
+    }
+  };
+
+  const t = translations[language];
+
   if (cart.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center safe-area-top">
-        <div className="text-center mobile-px px-4">
-          <ShoppingCart className="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Your cart is empty</h2>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🛒</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">{t.emptyCart}</h2>
           <button
             onClick={() => navigate('/marketplace')}
-            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 min-h-[44px] text-sm sm:text-base"
+            className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
           >
-            Continue Shopping
+            {t.goToMarket}
           </button>
-        </div>
-        <div className="lg:hidden fixed bottom-0 left-0 right-0">
-          <MobileNav />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 safe-area-top">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-lg border-b-4 border-green-600 safe-area-top">
-        <div className="max-w-4xl mx-auto mobile-px px-4 mobile-py py-3 sm:py-4">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <button
-              onClick={() => navigate('/marketplace')}
-              className="text-green-600 hover:text-green-700 min-h-[44px] min-w-[44px] flex items-center justify-center"
-            >
-              <ArrowLeft className="w-5 h-5 sm:mr-2" />
-              <span className="hidden sm:inline">{t.backToCart}</span>
-            </button>
-            <h1 className="text-xl sm:text-3xl font-bold text-gray-800">{t.title}</h1>
+      <div className="bg-white shadow-lg p-4 flex items-center gap-4">
+        <button
+          onClick={() => navigate('/marketplace')}
+          className="p-2 rounded-lg hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
+        >
+          <ArrowLeft className="w-6 h-6 text-gray-600" />
+        </button>
+        <h1 className="text-xl font-bold text-gray-800">{t.title}</h1>
+      </div>
+
+      <div className="p-4 space-y-6">
+        {/* Order Summary */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg">
+          <h2 className="text-lg font-bold text-gray-800 mb-4">{t.orderSummary}</h2>
+          <div className="space-y-3">
+            {cart.map((item) => (
+              <div key={item.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <h3 className="font-semibold text-gray-800">{item.name}</h3>
+                  <p className="text-sm text-gray-600">₹{item.price}/kg × {item.quantity}</p>
+                </div>
+                <p className="font-bold text-green-600">₹{item.price * item.quantity}</p>
+              </div>
+            ))}
+          </div>
+          <div className="border-t pt-4 mt-4">
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-bold text-gray-800">{t.total}:</span>
+              <span className="text-2xl font-bold text-green-600">₹{total}</span>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div className="max-w-4xl mx-auto mobile-px px-4 py-4 sm:py-8 pb-20 lg:pb-8">
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-          {/* Order Summary */}
-          <div className="bg-white rounded-lg shadow-md mobile-card p-4 sm:p-6">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">{t.orderSummary}</h2>
-            
-            <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
-              {cart.map((item, index) => (
-                <div key={index} className="flex justify-between items-start border-b pb-2">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-sm sm:text-base truncate">{item.name}</h3>
-                    <p className="text-xs sm:text-sm text-gray-600">Qty: {item.quantity || 1}</p>
-                  </div>
-                  <p className="font-medium text-sm sm:text-base ml-2">₹{item.price * (item.quantity || 1)}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="space-y-2 border-t pt-3 sm:pt-4">
-              <div className="flex justify-between text-sm sm:text-base">
-                <span>{t.subtotal}</span>
-                <span>₹{subtotal}</span>
-              </div>
-              
-              {isFirstTimeUser && (
-                <div className="flex justify-between text-green-600 text-sm sm:text-base">
-                  <span>{t.discount}</span>
-                  <span>-₹{discount}</span>
-                </div>
-              )}
-              
-              <div className="flex justify-between text-sm sm:text-base">
-                <span>{t.delivery}</span>
-                <span>{deliveryFee === 0 ? t.free : `₹${deliveryFee}`}</span>
-              </div>
-              
-              <div className="flex justify-between font-bold text-base sm:text-lg border-t pt-2">
-                <span>{t.total}</span>
-                <span>₹{total}</span>
-              </div>
-            </div>
-
-            {isFirstTimeUser && (
-              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-green-800 text-xs sm:text-sm font-medium">
-                  🎉 Congratulations! You're getting 20% off as a first-time user!
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Payment & Address */}
-          <div className="bg-white rounded-lg shadow-md mobile-card p-4 sm:p-6">
-            <div className="mb-4 sm:mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t.address}
+        {/* Delivery Information */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg">
+          <h2 className="text-lg font-bold text-gray-800 mb-4">{t.deliveryInfo}</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <User className="w-4 h-4 inline mr-2" />
+                {t.fullName} *
               </label>
-              <textarea
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500 text-base"
-                rows="3"
-                placeholder="Enter your complete delivery address"
+              <input
+                type="text"
+                name="name"
+                value={orderData.name}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 required
               />
             </div>
 
-            <div className="mb-4 sm:mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                {t.paymentMethod}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <Phone className="w-4 h-4 inline mr-2" />
+                {t.phoneNumber} *
               </label>
-              
-              <div className="space-y-2 sm:space-y-3">
-                <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 min-h-[44px]">
-                  <input
-                    type="radio"
-                    value="card"
-                    checked={paymentMethod === 'card'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="mr-3"
-                  />
-                  <div className="flex items-center">
-                    <span className="text-lg sm:text-xl">💳</span>
-                    <span className="ml-2 text-sm sm:text-base">{t.card}</span>
-                  </div>
-                </label>
-                
-                <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 min-h-[44px]">
-                  <input
-                    type="radio"
-                    value="upi"
-                    checked={paymentMethod === 'upi'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="mr-3"
-                  />
-                  <div className="flex items-center">
-                    <span className="text-lg sm:text-xl">📱</span>
-                    <span className="ml-2 text-sm sm:text-base">{t.upi}</span>
-                  </div>
-                </label>
-                
-                <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 min-h-[44px]">
-                  <input
-                    type="radio"
-                    value="cod"
-                    checked={paymentMethod === 'cod'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="mr-3"
-                  />
-                  <div className="flex items-center">
-                    <span className="text-lg sm:text-xl">💵</span>
-                    <span className="ml-2 text-sm sm:text-base">{t.cod}</span>
-                  </div>
-                </label>
-              </div>
+              <input
+                type="tel"
+                name="phone"
+                value={orderData.phone}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                required
+              />
             </div>
 
-            <button
-              onClick={handlePlaceOrder}
-              disabled={loading || !address.trim()}
-              className="w-full bg-green-600 text-white py-3 sm:py-4 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] text-sm sm:text-base"
-            >
-              {loading ? 'Processing...' : `${t.placeOrder} - ₹${total}`}
-            </button>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <MapPin className="w-4 h-4 inline mr-2" />
+                {t.address} *
+              </label>
+              <textarea
+                name="address"
+                value={orderData.address}
+                onChange={handleInputChange}
+                rows="3"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                required
+              />
+            </div>
 
-            <div className="mt-4 text-center text-xs sm:text-sm text-gray-600">
-              <p>🔒 Secure payment • 📦 Free delivery on orders above ₹1000</p>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                {t.notes}
+              </label>
+              <textarea
+                name="notes"
+                value={orderData.notes}
+                onChange={handleInputChange}
+                rows="2"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder={language === 'hi' ? 'कोई विशेष निर्देश...' : 'Any special instructions...'}
+              />
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* Mobile Navigation */}
-      <div className="lg:hidden">
-        <MobileNav />
+
+        {/* Place Order Button */}
+        <button
+          onClick={handlePlaceOrder}
+          disabled={loading}
+          className="w-full bg-green-600 text-white py-4 rounded-2xl text-lg font-bold hover:bg-green-700 transition-colors disabled:opacity-50 min-h-[44px] flex items-center justify-center"
+        >
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>{language === 'hi' ? 'ऑर्डर दिया जा रहा है...' : 'Placing Order...'}</span>
+            </div>
+          ) : (
+            `${t.placeOrder} - ₹${total}`
+          )}
+        </button>
       </div>
     </div>
   );

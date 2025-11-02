@@ -1,106 +1,78 @@
 import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { useLocationContext } from '../../contexts/LocationContext';
-import LocationSelector from './LocationSelector';
-import { MapPin, Navigation, Settings } from 'lucide-react';
+import { MapPin, X } from 'lucide-react';
 
 const LocationPrompt = ({ isOpen, onClose }) => {
-  const { language } = useAuth();
-  const { getCurrentLocation, loading } = useLocationContext();
-  const [showSelector, setShowSelector] = useState(false);
+  const { updateLocation } = useLocationContext();
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
 
-  const translations = {
-    en: {
-      title: 'Enable Location Services',
-      subtitle: 'Get accurate location-based farming services',
-      useGPS: 'Use My GPS Location',
-      selectManual: 'Choose City Manually',
-      skip: 'Skip for now',
-      detecting: 'Getting your location...'
-    },
-    hi: {
-      title: 'स्थान सेवा सक्षम करें',
-      subtitle: 'सही स्थान-आधारित कृषि सेवाएं पाएं',
-      useGPS: 'मेरा GPS स्थान उपयोग करें',
-      selectManual: 'शहर मैनुअल चुनें',
-      skip: 'अभी छोड़ें',
-      detecting: 'आपका स्थान पता कर रहे हैं...'
-    }
-  };
-
-  const t = translations[language];
-
-  const handleGPSLocation = async () => {
-    try {
-      await getCurrentLocation();
-      localStorage.setItem('kisanSetuLocationEnabled', 'true');
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (city && state) {
+      updateLocation({
+        city,
+        state,
+        country: 'India'
+      });
       onClose();
-    } catch (error) {
-      console.error('GPS location failed:', error);
-      alert(language === 'hi' ? 'GPS स्थान पता नहीं कर सका। कृपया मैनुअल चुनाव करें।' : 'Could not get GPS location. Please select manually.');
     }
-  };
-
-  const handleManualSelect = () => {
-    setShowSelector(true);
-  };
-
-  const handleSelectorClose = () => {
-    setShowSelector(false);
-    onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MapPin className="w-8 h-8 text-blue-600" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">{t.title}</h2>
-            <p className="text-gray-600 text-sm">{t.subtitle}</p>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-6 h-6 text-green-600" />
+            <h3 className="text-lg font-bold text-gray-800">Set Your Location</h3>
           </div>
-
-          {loading ? (
-            <div className="text-center py-4">
-              <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-sm text-gray-600">{t.detecting}</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <button
-                onClick={handleGPSLocation}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                <Navigation className="w-4 h-4" />
-                {t.useGPS}
-              </button>
-              <button
-                onClick={handleManualSelect}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <Settings className="w-4 h-4" />
-                {t.selectManual}
-              </button>
-              <button
-                onClick={onClose}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                {t.skip}
-              </button>
-            </div>
-          )}
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <X className="w-6 h-6" />
+          </button>
         </div>
+        
+        <p className="text-gray-600 mb-4">
+          Help us provide better local recommendations by setting your location.
+        </p>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Enter your city"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Enter your state"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            required
+          />
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+            >
+              Skip
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            >
+              Save Location
+            </button>
+          </div>
+        </form>
       </div>
-      
-      <LocationSelector 
-        isOpen={showSelector} 
-        onClose={handleSelectorClose} 
-      />
-    </>
+    </div>
   );
 };
 

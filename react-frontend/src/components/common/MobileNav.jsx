@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Home, Leaf, Cloud, Store, Users, ShoppingCart } from 'lucide-react';
+import { Home, Leaf, Cloud, Store, Users, ShoppingCart, Brain } from 'lucide-react';
 
 const MobileNav = () => {
   const navigate = useNavigate();
@@ -19,6 +19,12 @@ const MobileNav = () => {
       label: language === 'hi' ? 'फसल' : 'Crop',
       path: '/crop-health',
       active: location.pathname === '/crop-health'
+    },
+    {
+      icon: Brain,
+      label: language === 'hi' ? 'AI' : 'AI',
+      path: '/ai-analysis',
+      active: location.pathname === '/ai-analysis'
     },
     {
       icon: Users,

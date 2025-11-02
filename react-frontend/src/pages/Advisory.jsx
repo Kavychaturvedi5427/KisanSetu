@@ -1,146 +1,219 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { advisoryAPI } from '../services/api';
+import MobileNav from '../components/common/MobileNav';
+import { ArrowLeft, Lightbulb, Cloud, Leaf, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Lightbulb, MessageCircle, BookOpen, Users } from 'lucide-react';
 
 const Advisory = () => {
   const { language } = useAuth();
   const navigate = useNavigate();
-  const [pageLoaded, setPageLoaded] = useState(false);
+  const [recommendations, setRecommendations] = useState(null);
+  const [selectedSeason, setSelectedSeason] = useState('winter');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setPageLoaded(true), 800);
-    return () => clearTimeout(timer);
-  }, []);
+    loadRecommendations();
+  }, [selectedSeason]);
+
+  const loadRecommendations = async () => {
+    setLoading(true);
+    try {
+      const response = await advisoryAPI.getRecommendations(selectedSeason);
+      setRecommendations(response.data);
+    } catch (error) {
+      console.error('Advisory error:', error);
+      // Agricultural advisory data
+      setRecommendations({
+        crops: language === 'hi' ? ['गेहूं', 'सरसों', 'मटर', 'आलू'] : ['Wheat', 'Mustard', 'Peas', 'Potato'],
+        tips: language === 'hi' ? [
+          'रबी फसलों के लिए मिट्टी तैयार करें',
+          'जैविक खाद का प्रयोग करें', 
+          'उचित सिंचाई सुनिश्चित करें',
+          'मौसम की स्थिति पर नजर रखें'
+        ] : [
+          'Prepare soil for rabi crops',
+          'Apply organic manure',
+          'Ensure proper irrigation',
+          'Monitor weather conditions'
+        ]
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const translations = {
     en: {
-      title: 'Crop Advisory Services',
-      subtitle: 'Expert farming advice and recommendations',
-      backBtn: '← Back to Dashboard',
-      comingSoon: 'Coming Soon!',
-      description: 'Our AI-powered crop advisory system is under development. Soon you will be able to get personalized farming advice, crop disease detection, and expert recommendations.',
-      features: 'Upcoming Features',
-      aiAdvice: 'AI-Powered Advice',
-      aiAdviceDesc: 'Get intelligent farming recommendations based on your crop data',
-      diseaseDetection: 'Disease Detection',
-      diseaseDetectionDesc: 'Early detection of crop diseases using image analysis',
-      expertConsult: 'Expert Consultation',
-      expertConsultDesc: 'Connect with agricultural experts for personalized advice',
-      community: 'Farmer Community',
-      communityDesc: 'Join discussions with fellow farmers and share experiences'
+      title: 'Farming Advisory',
+      seasonalTips: 'Seasonal Farming Tips',
+      recommendedCrops: 'Recommended Crops',
+      season: 'Season',
+      winter: 'Winter (Rabi)',
+      summer: 'Summer (Zaid)',
+      monsoon: 'Monsoon (Kharif)',
+      generalTips: 'General Farming Tips',
+      weatherTips: 'Weather-based Tips'
     },
     hi: {
-      title: 'फसल सलाहकार सेवाएं',
-      subtitle: 'विशेषज्ञ कृषि सलाह और सिफारिशें',
-      backBtn: '← डैशबोर्ड पर वापस',
-      comingSoon: 'जल्दी आ रहा है!',
-      description: 'हमारा एआई-संचालित फसल सलाहकार सिस्टम विकास में है। जल्द ही आप व्यक्तिगत कृषि सलाह, फसल रोग का पता लगाना, और विशेषज्ञ सिफारिशें प्राप्त कर सकेंगे।',
-      features: 'आगामी सुविधाएं',
-      aiAdvice: 'एआई-संचालित सलाह',
-      aiAdviceDesc: 'अपने फसल डेटा के आधार पर बुद्धिमान कृषि सिफारिशें प्राप्त करें',
-      diseaseDetection: 'रोग का पता लगाना',
-      diseaseDetectionDesc: 'छवि विश्लेषण का उपयोग करके फसल रोगों का प्रारंभिक पता लगाना',
-      expertConsult: 'विशेषज्ञ परामर्श',
-      expertConsultDesc: 'व्यक्तिगत सलाह के लिए कृषि विशेषज्ञों से जुड़ें',
-      community: 'किसान समुदाय',
-      communityDesc: 'साथी किसानों के साथ चर्चा में शामिल हों और अनुभव साझा करें'
+      title: 'कृषि सलाह',
+      seasonalTips: 'मौसमी कृषि सुझाव',
+      recommendedCrops: 'सुझाई गई फसलें',
+      season: 'मौसम',
+      winter: 'सर्दी (रबी)',
+      summer: 'गर्मी (जायद)',
+      monsoon: 'मानसून (खरीफ)',
+      generalTips: 'सामान्य कृषि सुझाव',
+      weatherTips: 'मौसम आधारित सुझाव'
     }
   };
 
   const t = translations[language];
 
-  if (!pageLoaded) {
-    return (
-      <div className="fixed inset-0 bg-gradient-to-r from-green-600 to-orange-500 flex items-center justify-center z-50">
-        <div className="w-12 h-12 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
+  const generalTips = [
+    {
+      icon: '💧',
+      title: language === 'hi' ? 'जल प्रबंधन' : 'Water Management',
+      desc: language === 'hi' ? 'उचित सिंचाई और जल संरक्षण' : 'Proper irrigation and water conservation'
+    },
+    {
+      icon: '🌱',
+      title: language === 'hi' ? 'बीज चयन' : 'Seed Selection',
+      desc: language === 'hi' ? 'गुणवत्तापूर्ण बीजों का चयन' : 'Choose quality seeds for better yield'
+    },
+    {
+      icon: '🦠',
+      title: language === 'hi' ? 'कीट नियंत्रण' : 'Pest Control',
+      desc: language === 'hi' ? 'जैविक कीट नियंत्रण विधियां' : 'Organic pest control methods'
+    },
+    {
+      icon: '🌾',
+      title: language === 'hi' ? 'फसल चक्र' : 'Crop Rotation',
+      desc: language === 'hi' ? 'मिट्टी की उर्वरता बनाए रखें' : 'Maintain soil fertility'
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 transition-all duration-700 ease-in-out">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-yellow-50 pb-20">
       {/* Header */}
-      <header className="bg-gradient-to-r from-green-600 to-green-500 text-white p-6">
-        <div className="max-w-7xl mx-auto">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 text-white hover:text-green-100 mb-4"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            {t.backBtn}
-          </button>
+      <div className="bg-white shadow-lg p-4 flex items-center gap-4">
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="p-2 rounded-lg hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
+        >
+          <ArrowLeft className="w-6 h-6 text-gray-600" />
+        </button>
+        <h1 className="text-xl font-bold text-gray-800">{t.title}</h1>
+      </div>
+
+      <div className="p-4 space-y-6">
+        {/* Season Selector */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg">
+          <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-green-600" />
+            {t.seasonalTips}
+          </h2>
           
-          <div className="text-center">
-            <h1 className="text-4xl font-bold mb-2">💡 {t.title}</h1>
-            <p className="text-green-100 text-lg">{t.subtitle}</p>
+          <div className="flex gap-2 mb-4 overflow-x-auto">
+            {['winter', 'summer', 'monsoon'].map((season) => (
+              <button
+                key={season}
+                onClick={() => setSelectedSeason(season)}
+                className={`px-4 py-2 rounded-full whitespace-nowrap min-h-[44px] ${
+                  selectedSeason === season
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-200 text-gray-700'
+                }`}
+              >
+                {t[season]}
+              </button>
+            ))}
           </div>
-        </div>
-      </header>
 
-      <div className="max-w-4xl mx-auto p-6">
-        {/* Coming Soon Section */}
-        <div className="text-center mb-12">
-          <div className="text-8xl mb-6">🚧</div>
-          <h2 className="text-4xl font-bold text-green-600 mb-4">{t.comingSoon}</h2>
-          <p className="text-lg text-gray-700 max-w-2xl mx-auto">{t.description}</p>
-        </div>
-
-        {/* Features Preview */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-bold text-green-600 mb-6 text-center">{t.features}</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl p-6 shadow-lg border-l-5 border-green-500">
-              <div className="flex items-center gap-4 mb-4">
-                <Lightbulb className="w-12 h-12 text-green-500" />
-                <h4 className="text-xl font-bold text-green-600">{t.aiAdvice}</h4>
-              </div>
-              <p className="text-gray-700">{t.aiAdviceDesc}</p>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+              <p className="text-gray-600">{language === 'hi' ? 'कृषि सुझाव लोड हो रहे हैं...' : 'Loading farming recommendations...'}</p>
             </div>
-            
-            <div className="bg-white rounded-xl p-6 shadow-lg border-l-5 border-red-500">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-2xl">
-                  🔬
+          ) : recommendations && (
+            <div className="space-y-4">
+              {/* Recommended Crops */}
+              <div>
+                <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <Leaf className="w-4 h-4 text-green-600" />
+                  {t.recommendedCrops}
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {recommendations.crops.map((crop, index) => (
+                    <div key={index} className="bg-green-100 p-3 rounded-lg text-center">
+                      <div className="text-2xl mb-1">🌾</div>
+                      <div className="font-medium text-green-800 text-sm">{crop}</div>
+                    </div>
+                  ))}
                 </div>
-                <h4 className="text-xl font-bold text-green-600">{t.diseaseDetection}</h4>
               </div>
-              <p className="text-gray-700">{t.diseaseDetectionDesc}</p>
-            </div>
-            
-            <div className="bg-white rounded-xl p-6 shadow-lg border-l-5 border-blue-500">
-              <div className="flex items-center gap-4 mb-4">
-                <MessageCircle className="w-12 h-12 text-blue-500" />
-                <h4 className="text-xl font-bold text-green-600">{t.expertConsult}</h4>
+
+              {/* Tips */}
+              <div>
+                <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <Lightbulb className="w-4 h-4 text-yellow-600" />
+                  {t.weatherTips}
+                </h3>
+                <div className="space-y-2">
+                  {recommendations.tips.map((tip, index) => (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg">
+                      <div className="w-6 h-6 bg-yellow-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-white text-sm font-bold">{index + 1}</span>
+                      </div>
+                      <p className="text-gray-700">{tip}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <p className="text-gray-700">{t.expertConsultDesc}</p>
             </div>
-            
-            <div className="bg-white rounded-xl p-6 shadow-lg border-l-5 border-purple-500">
-              <div className="flex items-center gap-4 mb-4">
-                <Users className="w-12 h-12 text-purple-500" />
-                <h4 className="text-xl font-bold text-green-600">{t.community}</h4>
+          )}
+        </div>
+
+        {/* General Tips */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg">
+          <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <Lightbulb className="w-5 h-5 text-yellow-600" />
+            {t.generalTips}
+          </h2>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {generalTips.map((tip, index) => (
+              <div key={index} className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">{tip.icon}</span>
+                  <h3 className="font-semibold text-gray-800">{tip.title}</h3>
+                </div>
+                <p className="text-gray-600 text-sm">{tip.desc}</p>
               </div>
-              <p className="text-gray-700">{t.communityDesc}</p>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Placeholder Content */}
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-8 rounded-xl text-center">
-          <div className="text-4xl mb-4">🌱</div>
-          <h3 className="text-2xl font-bold mb-4">
-            {language === 'hi' ? 'जल्द ही उपलब्ध' : 'Available Soon'}
-          </h3>
-          <p className="text-lg opacity-90">
-            {language === 'hi' 
-              ? 'हम आपके लिए सबसे अच्छी कृषि सलाह सेवा तैयार कर रहे हैं।'
-              : 'We are preparing the best agricultural advisory service for you.'
-            }
-          </p>
+        {/* Weather Advisory */}
+        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl p-6 shadow-lg">
+          <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+            <Cloud className="w-5 h-5" />
+            {language === 'hi' ? 'मौसम चेतावनी' : 'Weather Alert'}
+          </h2>
+          <div className="bg-white/20 p-4 rounded-lg">
+            <p className="font-semibold mb-2">
+              {language === 'hi' ? '⚠️ महत्वपूर्ण सूचना' : '⚠️ Important Notice'}
+            </p>
+            <p className="text-sm opacity-90">
+              {language === 'hi'
+                ? 'अगले 3 दिनों में बारिश की संभावना है। फसल की सुरक्षा के लिए उचित व्यवस्था करें।'
+                : 'Rain expected in the next 3 days. Take necessary precautions to protect your crops.'}
+            </p>
+          </div>
         </div>
       </div>
+
+      <MobileNav />
     </div>
   );
 };

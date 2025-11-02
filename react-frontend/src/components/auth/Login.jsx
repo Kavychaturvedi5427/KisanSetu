@@ -3,20 +3,32 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { authAPI } from '../../services/api';
+import { useUserData } from '../../hooks/useUserData';
 import { Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const [rememberMe, setRememberMe] = useState(true);
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
   const { login, language, setLanguage } = useAuth();
+  const { getSavedFormData, saveFormData } = useUserData();
   const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => setPageLoaded(true), 800);
     return () => clearTimeout(timer);
   }, []);
+
+  // Load saved login data
+  useEffect(() => {
+    const savedLoginData = getSavedFormData('lastLogin');
+    if (savedLoginData && savedLoginData.username) {
+      setValue('username', savedLoginData.username);
+      setRememberMe(savedLoginData.rememberMe || false);
+    }
+  }, [getSavedFormData, setValue]);
 
   const translations = {
     en: {
@@ -68,8 +80,15 @@ const Login = () => {
         token_type
       };
       
-      // Store complete user data
-      login(userData);
+      // Save login preferences
+      saveFormData('lastLogin', {
+        username: data.username,
+        rememberMe: rememberMe,
+        lastLoginTime: Date.now()
+      });
+      
+      // Store complete user data with remember me option
+      login(userData, rememberMe);
       trackUserLogin(userData);
       
       // Navigate based on user type
@@ -207,7 +226,12 @@ const Login = () => {
             </div>
 
             <div className="flex items-center text-sm text-gray-600 mb-4">
-              <input type="checkbox" className="mr-2" />
+              <input 
+                type="checkbox" 
+                className="mr-2" 
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
               <span>{t.remember}</span>
             </div>
 

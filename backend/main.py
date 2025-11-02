@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+
 from app.routes import auth, farmers, marketplace, advisory, admin, location
-from app.database import connect_to_mongo, close_mongo_connection
+from app.database import connect_to_mongo, close_mongo_connection, get_database
+from datetime import datetime
 import os
 
 app = FastAPI(title="Kisan Setu API", version="1.0.0", description="AI-Powered Agricultural Intelligence Platform")
@@ -15,8 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -55,8 +55,11 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    db = get_database()
-    db_status = "connected" if hasattr(db, 'users') else "mock"
+    try:
+        db = get_database()
+        db_status = "connected" if db and hasattr(db, 'users') else "mock"
+    except:
+        db_status = "mock"
     return {
         "status": "healthy", 
         "service": "Kisan Setu API",
