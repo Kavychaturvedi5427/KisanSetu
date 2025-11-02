@@ -61,33 +61,18 @@ const Marketplace = () => {
   const t = translations[language];
 
   const products = [
-    { id: 1, name: 'Organic Fertilizer', nameHi: 'जैविक खाद', price: '₹500', image: 'fertilizer.jpeg.jpg' },
-    { id: 2, name: 'Seeds Pack', nameHi: 'बीज पैक', price: '₹200', image: 'seeds.jpeg.jpg' },
-    { id: 3, name: 'Drip Irrigation Kit', nameHi: 'ड्रिप सिंचाई किट', price: '₹2500', image: 'dripirrigation.jpeg.jpg' },
-    { id: 4, name: 'Soil Tester Kit', nameHi: 'मिट्टी परीक्षण किट', price: '₹800', image: 'soiltesterkit.jpeg.jpg' },
-    { id: 5, name: 'Watering Can', nameHi: 'पानी का डिब्बा', price: '₹150', image: 'wateringcan.jpeg.jpg' },
-    { id: 6, name: 'Compost Bag', nameHi: 'कंपोस्ट बैग', price: '₹300', image: 'compostbag.jpeg.jpg' },
-    { id: 7, name: 'Mini Greenhouse', nameHi: 'मिनी ग्रीनहाउस', price: '₹5000', image: 'minigreenhouse.jpeg.jpg' },
-    { id: 8, name: 'Natural Pesticides', nameHi: 'प्राकृतिक कीटनाशक', price: '₹400', image: 'naturalpesticides.jpg' },
-    { id: 9, name: 'Tractor Rental', nameHi: 'ट्रैक्टर किराया', price: '₹1500/day', image: 'tractorrental.jpeg.jpg' }
+    { id: 1, name: 'Organic Fertilizer', nameHi: 'जैविक खाद', price: '₹500', image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop' },
+    { id: 2, name: 'Seeds Pack', nameHi: 'बीज पैक', price: '₹200', image: 'https://images.unsplash.com/photo-1592419044706-39796d40f98c?w=400&h=300&fit=crop' },
+    { id: 3, name: 'Drip Irrigation Kit', nameHi: 'ड्रिप सिंचाई किट', price: '₹2500', image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&h=300&fit=crop' },
+    { id: 4, name: 'Soil Tester Kit', nameHi: 'मिट्टी परीक्षण किट', price: '₹800', image: 'https://images.unsplash.com/photo-1574263867128-a3d5c1b1deaa?w=400&h=300&fit=crop' },
+    { id: 5, name: 'Watering Can', nameHi: 'पानी का डिब्बा', price: '₹150', image: 'https://images.unsplash.com/photo-1585314062340-f1a5a7c9328d?w=400&h=300&fit=crop' },
+    { id: 6, name: 'Compost Bag', nameHi: 'कंपोस्ट बैग', price: '₹300', image: 'https://images.unsplash.com/photo-1585314062340-f1a5a7c9328d?w=400&h=300&fit=crop' },
+    { id: 7, name: 'Mini Greenhouse', nameHi: 'मिनी ग्रीनहाउस', price: '₹5000', image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop' },
+    { id: 8, name: 'Natural Pesticides', nameHi: 'प्राकृतिक कीटनाशक', price: '₹400', image: 'https://images.unsplash.com/photo-1574263867128-a3d5c1b1deaa?w=400&h=300&fit=crop' },
+    { id: 9, name: 'Tractor Rental', nameHi: 'ट्रैक्टर किराया', price: '₹1500/day', image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=400&h=300&fit=crop' }
   ];
 
-  // Copy images to public folder on component mount
-  useEffect(() => {
-    // This will be handled by manually copying the images
-    const imagesToCopy = [
-      'fertilizer.jpeg.jpg',
-      'seeds.jpeg.jpg', 
-      'dripirrigation.jpeg.jpg',
-      'soiltesterkit.jpeg.jpg',
-      'wateringcan.jpeg.jpg',
-      'compostbag.jpeg.jpg',
-      'minigreenhouse.jpeg.jpg',
-      'naturalpesticides.jpg',
-      'tractorrental.jpeg.jpg'
-    ];
-    // Images should be manually copied to public folder
-  }, []);
+
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -196,7 +181,7 @@ const Marketplace = () => {
             <div key={product.id} className="bg-white border border-gray-200 rounded-xl text-center p-6 transition-all duration-300 hover:scale-105 hover:shadow-xl">
               <div className="w-full h-48 bg-gray-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
                 <img 
-                  src={`/${product.image}`} 
+                  src={product.image} 
                   alt={language === 'hi' ? product.nameHi : product.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
