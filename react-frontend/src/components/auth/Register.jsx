@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { authAPI } from '../../services/api';
 import { Eye, EyeOff } from 'lucide-react';
 
 const Register = () => {
@@ -108,30 +109,31 @@ const Register = () => {
     setIsLoading(true);
     try {
       const userData = {
-        fullname: data.fullname,
-        email: data.email,
-        phone: data.phone,
-        usertype: data.usertype,
         username: data.username,
-        password: data.password,
-        registrationDate: new Date().toISOString()
+        email: data.email,
+        full_name: data.fullname,
+        user_type: data.usertype,
+        password: data.password
       };
 
-      let users = JSON.parse(localStorage.getItem('kisanSetuUsers') || '[]');
-
-      if (users.find(user => user.username === data.username)) {
-        alert('Username already exists. Please choose a different username.');
-        return;
-      }
-
-      users.push(userData);
-      localStorage.setItem('kisanSetuUsers', JSON.stringify(users));
-
-      alert('Registration successful! Please login with your credentials.');
+      const response = await authAPI.register(userData);
+      
+      // Show success message
+      alert(`Registration successful! Welcome ${data.fullname}! Please login with your credentials.`);
+      
+      // Navigate to login page
       navigate('/login');
     } catch (error) {
       console.error('Registration error:', error);
-      alert('Registration failed. Please try again.');
+      let errorMessage = 'Registration failed. Please try again.';
+      
+      if (error.response?.status === 400) {
+        errorMessage = error.response.data?.detail || 'Username or email already exists. Please choose different ones.';
+      } else if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      }
+      
+      alert(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -228,6 +230,7 @@ const Register = () => {
                 <option value="farmer">{t.farmer}</option>
                 <option value="consumer">{t.consumer}</option>
                 <option value="vendor">{t.vendor}</option>
+                <option value="admin">Admin</option>
               </select>
               {errors.usertype && (
                 <p className="text-red-500 text-xs mt-1">{errors.usertype.message}</p>
@@ -327,8 +330,11 @@ const Register = () => {
             </button>
           </form>
 
-          <div className="mt-4 text-center">
-            <Link to="/login" className="text-orange-500 text-sm hover:text-yellow-500">{t.login}</Link>
+          <div className="mt-4 text-center space-y-2">
+            <Link to="/login" className="block text-orange-500 text-sm hover:text-yellow-500">{t.login}</Link>
+            <div className="text-xs text-gray-500">
+              After registration, use your credentials to login
+            </div>
           </div>
 
           <footer className="text-center text-xs text-gray-600 mt-4">

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { authAPI } from '../../services/api';
 import { Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
@@ -49,32 +50,45 @@ const Login = () => {
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      const users = JSON.parse(localStorage.getItem('kisanSetuUsers') || '[]');
-      const user = users.find(u => u.username === data.username && u.password === data.password);
-
-      if (user) {
-        login(user);
-        trackUserLogin(user);
-        if (user.usertype === 'admin') {
-          navigate('/admin');
-        } else {
-          navigate('/dashboard');
-        }
-      } else if (data.username === 'admin' && data.password === 'password') {
-        const adminUser = {
-          fullname: 'Admin User',
-          username: 'admin',
-          usertype: 'admin'
-        };
-        login(adminUser);
-        trackUserLogin(adminUser);
+      // Login with backend API
+      const response = await authAPI.login(data);
+      const { access_token, token_type } = response.data;
+      
+      // Store token temporarily for profile request
+      const tempUserData = { access_token, token_type };
+      localStorage.setItem('kisanSetuUser', JSON.stringify(tempUserData));
+      
+      // Get user profile
+      const profileResponse = await authAPI.getProfile();
+      const userProfile = profileResponse.data;
+      
+      const userData = {
+        ...userProfile,
+        access_token,
+        token_type
+      };
+      
+      // Store complete user data
+      login(userData);
+      trackUserLogin(userData);
+      
+      // Navigate based on user type
+      if (userData.user_type === 'admin') {
         navigate('/admin');
       } else {
-        alert('Invalid credentials. Please register first or use admin/password for demo.');
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('Login failed. Please try again.');
+      let errorMessage = 'Login failed. Please check your credentials.';
+      
+      if (error.response?.status === 401) {
+        errorMessage = 'Invalid username or password. Please try again.';
+      } else if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      }
+      
+      alert(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -83,8 +97,8 @@ const Login = () => {
   const trackUserLogin = (user) => {
     const loginSession = {
       username: user.username,
-      fullname: user.fullname,
-      usertype: user.usertype,
+      fullname: user.full_name,
+      usertype: user.user_type,
       loginTime: new Date().toISOString(),
       sessionId: generateSessionId(),
       ipAddress: 'localhost',
@@ -209,6 +223,15 @@ const Login = () => {
           <div className="mt-4 text-center space-y-2">
             <a href="#" className="block text-orange-500 text-sm hover:text-yellow-500">{t.forgot}</a>
             <Link to="/register" className="block text-orange-500 text-sm hover:text-yellow-500">{t.create}</Link>
+          </div>
+
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
+            <strong>Demo Accounts:</strong><br/>
+            Admin: admin / password<br/>
+            Farmer: farmer1 / password<br/>
+            <br/>
+            <strong>Or create your own account:</strong><br/>
+            Click "Create New Account" to register
           </div>
 
           <footer className="text-center text-xs text-gray-600 mt-6">

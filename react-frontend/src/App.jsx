@@ -5,6 +5,9 @@ import Register from './components/auth/Register';
 import Dashboard from './components/dashboard/Dashboard';
 import Landing from './pages/Landing';
 import Marketplace from './pages/Marketplace';
+import Checkout from './pages/Checkout';
+import Orders from './pages/Orders';
+import NearbyUsers from './pages/NearbyUsers';
 import Weather from './pages/Weather';
 import Advisory from './pages/Advisory';
 import Profile from './pages/Profile';
@@ -53,6 +56,9 @@ function AppRoutes() {
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/crop-health" element={<ProtectedRoute><CropHealth /></ProtectedRoute>} />
       <Route path="/marketplace" element={<ProtectedRoute><Marketplace /></ProtectedRoute>} />
+      <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+      <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+      <Route path="/nearby" element={<ProtectedRoute><NearbyUsers /></ProtectedRoute>} />
       <Route path="/weather" element={<ProtectedRoute><Weather /></ProtectedRoute>} />
       <Route path="/advisory" element={<ProtectedRoute><Advisory /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

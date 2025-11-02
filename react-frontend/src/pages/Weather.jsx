@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { advisoryAPI } from '../services/api';
 import { ArrowLeft, Search } from 'lucide-react';
 
 const Weather = () => {
@@ -10,17 +11,34 @@ const Weather = () => {
   const [currentDate, setCurrentDate] = useState('');
   const [currentTime, setCurrentTime] = useState('');
   const [city, setCity] = useState('Delhi');
+  const [weatherData, setWeatherData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => setPageLoaded(true), 800);
     updateDateTime();
     const dateTimeInterval = setInterval(updateDateTime, 60000);
+    loadWeatherData();
     
     return () => {
       clearTimeout(timer);
       clearInterval(dateTimeInterval);
     };
   }, []);
+
+  const loadWeatherData = async () => {
+    try {
+      setLoading(true);
+      const response = await advisoryAPI.getWeather(city);
+      setWeatherData(response.data);
+    } catch (error) {
+      console.error('Error loading weather data:', error);
+      // Fallback to mock data
+      setWeatherData(mockWeatherData);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const updateDateTime = () => {
     const now = new Date();
@@ -96,31 +114,37 @@ const Weather = () => {
 
   const t = translations[language];
 
-  // Mock weather data
-  const weatherData = {
-    current: {
-      temperature: 28,
-      condition: 'sunny',
-      humidity: 65,
-      windSpeed: 12,
-      visibility: 10,
-      feelsLike: 32,
-      location: 'Delhi, India'
-    },
+  // Mock weather data as fallback
+  const mockWeatherData = {
+    city: 'Delhi',
+    temperature: 28,
+    humidity: 65,
+    description: 'Partly Cloudy',
+    wind_speed: 12,
+    pressure: 1013,
+    visibility: 10,
     forecast: [
-      { day: language === 'hi' ? 'आज' : 'Today', icon: '☀️', temp: '28°/18°', condition: 'sunny' },
-      { day: language === 'hi' ? 'कल' : 'Tomorrow', icon: '🌧️', temp: '25°/16°', condition: 'rainy' },
-      { day: language === 'hi' ? 'बुध' : 'Wed', icon: '⛅', temp: '27°/17°', condition: 'partly-cloudy' },
-      { day: language === 'hi' ? 'गुरु' : 'Thu', icon: '☀️', temp: '30°/19°', condition: 'sunny' },
-      { day: language === 'hi' ? 'शुक्र' : 'Fri', icon: '☁️', temp: '26°/15°', condition: 'cloudy' },
-      { day: language === 'hi' ? 'शनि' : 'Sat', icon: '🌧️', temp: '24°/14°', condition: 'rainy' },
-      { day: language === 'hi' ? 'रवि' : 'Sun', icon: '☀️', temp: '29°/18°', condition: 'sunny' }
-    ]
+      { day: language === 'hi' ? 'आज' : 'Today', temp_max: 32, temp_min: 24, condition: 'Sunny', advice: 'Good day for field work' },
+      { day: language === 'hi' ? 'कल' : 'Tomorrow', temp_max: 30, temp_min: 22, condition: 'Cloudy', advice: 'Monitor for rain' },
+      { day: language === 'hi' ? 'बुध' : 'Wed', temp_max: 28, temp_min: 20, condition: 'Rain', advice: 'Avoid irrigation' }
+    ],
+    farming_advice: 'Moderate weather conditions. Good for most farming activities.'
   };
 
-  const searchWeather = () => {
+  const getWeatherIcon = (condition) => {
+    const icons = {
+      'sunny': '☀️',
+      'cloudy': '☁️',
+      'rain': '🌧️',
+      'partly cloudy': '⛅',
+      'clear': '☀️'
+    };
+    return icons[condition.toLowerCase()] || '☀️';
+  };
+
+  const searchWeather = async () => {
     if (city.trim()) {
-      alert(`Searching weather for ${city}...`);
+      await loadWeatherData();
     } else {
       alert('Please enter a city name');
     }
@@ -154,32 +178,40 @@ const Weather = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
           {/* Current Weather */}
           <div className="lg:col-span-2 bg-white rounded-2xl p-8 shadow-lg text-center">
-            <div className="text-6xl mb-5 text-orange-500">☀️</div>
-            <div className="text-5xl font-bold text-green-600 mb-3">{weatherData.current.temperature}°C</div>
-            <div className="text-xl text-gray-800 mb-5">{t[weatherData.current.condition]}</div>
-            
-            <div className="grid grid-cols-2 gap-4 mt-5">
-              <div className="bg-gray-50 p-4 rounded-xl text-center">
-                <div className="text-2xl text-blue-500 mb-2">💧</div>
-                <div className="text-lg font-semibold text-green-600">{weatherData.current.humidity}%</div>
-                <div className="text-sm text-gray-600">{t.humidityLabel}</div>
+            {loading ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
               </div>
-              <div className="bg-gray-50 p-4 rounded-xl text-center">
-                <div className="text-2xl text-blue-500 mb-2">💨</div>
-                <div className="text-lg font-semibold text-green-600">{weatherData.current.windSpeed} km/h</div>
-                <div className="text-sm text-gray-600">{t.windLabel}</div>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-xl text-center">
-                <div className="text-2xl text-blue-500 mb-2">👁️</div>
-                <div className="text-lg font-semibold text-green-600">{weatherData.current.visibility} km</div>
-                <div className="text-sm text-gray-600">{t.visibilityLabel}</div>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-xl text-center">
-                <div className="text-2xl text-blue-500 mb-2">🌡️</div>
-                <div className="text-lg font-semibold text-green-600">{weatherData.current.feelsLike}°C</div>
-                <div className="text-sm text-gray-600">{t.feelsLikeLabel}</div>
-              </div>
-            </div>
+            ) : (
+              <>
+                <div className="text-6xl mb-5 text-orange-500">{getWeatherIcon(weatherData?.description || 'sunny')}</div>
+                <div className="text-5xl font-bold text-green-600 mb-3">{weatherData?.temperature || 28}°C</div>
+                <div className="text-xl text-gray-800 mb-5">{weatherData?.description || 'Partly Cloudy'}</div>
+                
+                <div className="grid grid-cols-2 gap-4 mt-5">
+                  <div className="bg-gray-50 p-4 rounded-xl text-center">
+                    <div className="text-2xl text-blue-500 mb-2">💧</div>
+                    <div className="text-lg font-semibold text-green-600">{weatherData?.humidity || 65}%</div>
+                    <div className="text-sm text-gray-600">{t.humidityLabel}</div>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-xl text-center">
+                    <div className="text-2xl text-blue-500 mb-2">💨</div>
+                    <div className="text-lg font-semibold text-green-600">{weatherData?.wind_speed || 12} km/h</div>
+                    <div className="text-sm text-gray-600">{t.windLabel}</div>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-xl text-center">
+                    <div className="text-2xl text-blue-500 mb-2">👁️</div>
+                    <div className="text-lg font-semibold text-green-600">{weatherData?.visibility || 10} km</div>
+                    <div className="text-sm text-gray-600">{t.visibilityLabel}</div>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-xl text-center">
+                    <div className="text-2xl text-blue-500 mb-2">🌡️</div>
+                    <div className="text-lg font-semibold text-green-600">{weatherData?.pressure || 1013} hPa</div>
+                    <div className="text-sm text-gray-600">Pressure</div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Location Info */}
@@ -203,7 +235,7 @@ const Weather = () => {
               </div>
               <div className="bg-gray-50 p-3 rounded-lg text-center">
                 <div className="text-lg text-blue-500 mb-1">📍</div>
-                <div className="font-semibold text-green-600">{weatherData.current.location}</div>
+                <div className="font-semibold text-green-600">{weatherData?.city || 'Delhi'}, India</div>
                 <div className="text-xs text-gray-600">{t.locationLabel}</div>
               </div>
               <div className="bg-gray-50 p-3 rounded-lg text-center">
@@ -224,18 +256,20 @@ const Weather = () => {
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-5 rounded-2xl text-center mb-5 shadow-lg">
           <div className="text-3xl mb-3 animate-pulse">⚠️</div>
           <h3 className="text-xl font-bold mb-2">{t.alertTitle}</h3>
-          <p className="text-lg">{t.alertMessage}</p>
+          <p className="text-lg">{weatherData?.farming_advice || t.alertMessage}</p>
         </div>
 
         {/* Forecast */}
         <div className="bg-white rounded-2xl p-6 shadow-lg mb-5">
           <h3 className="text-green-600 font-bold text-xl mb-5 text-center">{t.forecastTitle}</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-            {weatherData.forecast.map((day, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {(weatherData?.forecast || mockWeatherData.forecast).map((day, index) => (
               <div key={index} className="bg-gray-50 p-4 rounded-xl text-center border-2 border-transparent hover:border-orange-500 transition-all duration-200">
                 <div className="font-semibold text-green-600 mb-2">{day.day}</div>
-                <div className="text-3xl mb-2">{day.icon}</div>
-                <div className="font-semibold text-gray-800">{day.temp}</div>
+                <div className="text-3xl mb-2">{getWeatherIcon(day.condition)}</div>
+                <div className="font-semibold text-gray-800">{day.temp_max}°/{day.temp_min}°</div>
+                <div className="text-sm text-gray-600 mt-1">{day.condition}</div>
+                <div className="text-xs text-blue-600 mt-1">{day.advice}</div>
               </div>
             ))}
           </div>

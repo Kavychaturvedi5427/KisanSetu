@@ -111,7 +111,7 @@ body {
   background: var(--dark-green);
 }
 
-/* Responsive text sizes */
+/* Mobile-first responsive design */
 @media (max-width: 640px) {
   .text-responsive-xl {
     font-size: 1.5rem;
@@ -123,6 +123,35 @@ body {
   
   .text-responsive-base {
     font-size: 1rem;
+  }
+  
+  /* Mobile padding adjustments */
+  .mobile-px {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .mobile-py {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+  
+  /* Mobile card spacing */
+  .mobile-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Mobile button sizing */
+  .mobile-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+  }
+  
+  /* Mobile grid adjustments */
+  .mobile-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }
 
@@ -137,6 +166,77 @@ body {
   
   .text-responsive-base {
     font-size: 1.125rem;
+  }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+  .hover-lift:hover {
+    transform: none;
+  }
+  
+  .hover-lift:active {
+    transform: scale(0.98);
+  }
+  
+  /* Larger touch targets */
+  button, .btn, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Mobile navigation */
+.mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  padding: 0.5rem;
+  z-index: 50;
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-decoration: none;
+}
+
+.mobile-nav-item.active {
+  color: #059669;
+}
+
+/* Mobile-specific utilities */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Improved mobile scrolling */
+.mobile-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Mobile form improvements */
+@media (max-width: 640px) {
+  .input {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 1rem;
+  }
+  
+  select {
+    font-size: 16px;
+    padding: 1rem;
   }
 }
 
