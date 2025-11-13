@@ -6,7 +6,7 @@ const LocationService = ({ onLocationUpdate }) => {
 
   useEffect(() => {
     // Check if geolocation is available and user hasn't set location manually
-    if (navigator.geolocation && !localStorage.getItem('kisanSetuLocationManual')) {
+    if (navigator.geolocation && !localStorage.getItem('krishiLocationManual')) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           // In a real app, you'd reverse geocode these coordinates

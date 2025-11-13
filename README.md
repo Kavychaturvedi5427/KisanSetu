@@ -1,4 +1,4 @@
-# 🌾 Kisan Setu - My Hackathon Project
+# 🌾 Krishi - My Hackathon Project
 
 Hey! This is my submission for the Smart City & Sustainability hackathon. I built an AI-powered platform to help farmers in India.
 
@@ -67,7 +67,7 @@ Or just register with any email - no verification needed!
 ## 📁 Project Structure
 
 ```
-KisanSetu/
+Krishi/
 ├── backend/                 # Python FastAPI server
 │   ├── app/
 │   │   ├── ml_models/      # AI crop disease detection
@@ -101,7 +101,7 @@ KisanSetu/
 │   │   │   ├── Marketplace.jsx
 │   │   │   └── Weather.jsx
 │   │   └── services/      # API calls
-│   ├── public/           # Images (kisansetu.png, etc.)
+│   ├── public/           # Images (krishi.png, etc.)
 │   └── package.json      # Node packages
 ├── QUICK_START.bat       # Alternative startup
 ├── START.bat            # Main startup script

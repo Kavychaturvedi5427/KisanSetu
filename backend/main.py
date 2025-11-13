@@ -6,7 +6,7 @@ from app.database import connect_to_mongo, close_mongo_connection, get_database
 from datetime import datetime
 import os
 
-app = FastAPI(title="Kisan Setu API", version="1.0.0", description="AI-Powered Agricultural Intelligence Platform")
+app = FastAPI(title="Krishi API", version="1.0.0", description="AI-Powered Agricultural Intelligence Platform")
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,9 +20,9 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
-    print("🌾 Starting Kisan Setu API...")
+    print("🌾 Starting Krishi API...")
     await connect_to_mongo()
-    print("✅ Kisan Setu API started successfully!")
+    print("✅ Krishi API started successfully!")
     print("🌐 Server running at: http://localhost:8001")
     print("📚 API docs at: http://localhost:8001/docs")
 
@@ -40,7 +40,7 @@ app.include_router(location.router, prefix="/api/location", tags=["Location"])
 @app.get("/")
 async def root():
     return {
-        "message": "🌾 Kisan Setu API is running",
+        "message": "🌾 Krishi API is running",
         "version": "1.0.0",
         "status": "healthy",
         "endpoints": {
@@ -62,7 +62,7 @@ async def health_check():
         db_status = "mock"
     return {
         "status": "healthy", 
-        "service": "Kisan Setu API",
+        "service": "Krishi API",
         "database": db_status,
         "timestamp": datetime.utcnow().isoformat()
     }

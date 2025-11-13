@@ -34,26 +34,26 @@ const Login = () => {
     en: {
       welcome: 'WELCOME',
       tagline: 'AI-Powered Agricultural Intelligence Platform',
-      login: 'KISAN SETU LOGIN',
+      login: 'KRISHI LOGIN',
       username: 'Username',
       password: 'Password',
       remember: 'Remember Me',
       loginBtn: 'Login',
       forgot: 'Forgot Password?',
       create: 'Create New Account',
-      footer: '© 2025 Kisan Setu | Empowering Farmers'
+      footer: '© 2025 Krishi | Empowering Farmers'
     },
     hi: {
       welcome: 'स्वागत है',
       tagline: 'एआई संचालित कृषि बुद्धिमत्ता मंच',
-      login: 'किसान सेतु लॉगिन',
+      login: 'कृषि लॉगिन',
       username: 'उपयोगकर्ता नाम',
       password: 'पासवर्ड',
       remember: 'मुझे याद रखें',
       loginBtn: 'लॉगिन करें',
       forgot: 'पासवर्ड भूल गए?',
       create: 'नया खाता बनाएं',
-      footer: '© 2025 किसान सेतु | किसानों को सशक्त बनाना'
+      footer: '© 2025 कृषि | किसानों को सशक्त बनाना'
     }
   };
 
@@ -68,7 +68,7 @@ const Login = () => {
       
       // Store token temporarily for profile request
       const tempUserData = { access_token, token_type };
-      localStorage.setItem('kisanSetuUser', JSON.stringify(tempUserData));
+      localStorage.setItem('krishiUser', JSON.stringify(tempUserData));
       
       // Get user profile
       const profileResponse = await authAPI.getProfile();
@@ -124,14 +124,14 @@ const Login = () => {
       userAgent: navigator.userAgent
     };
 
-    let loginHistory = JSON.parse(localStorage.getItem('kisanSetuLoginHistory') || '[]');
+    let loginHistory = JSON.parse(localStorage.getItem('krishiLoginHistory') || '[]');
     loginHistory.push(loginSession);
     
     if (loginHistory.length > 100) {
       loginHistory = loginHistory.slice(-100);
     }
     
-    localStorage.setItem('kisanSetuLoginHistory', JSON.stringify(loginHistory));
+    localStorage.setItem('krishiLoginHistory', JSON.stringify(loginHistory));
     updateUserStats(user.username);
   };
 
@@ -140,7 +140,7 @@ const Login = () => {
   };
 
   const updateUserStats = (username) => {
-    let userStats = JSON.parse(localStorage.getItem('kisanSetuUserStats') || '{}');
+    let userStats = JSON.parse(localStorage.getItem('krishiUserStats') || '{}');
     
     if (!userStats[username]) {
       userStats[username] = {
@@ -153,7 +153,7 @@ const Login = () => {
     userStats[username].totalLogins++;
     userStats[username].lastLogin = new Date().toISOString();
     
-    localStorage.setItem('kisanSetuUserStats', JSON.stringify(userStats));
+    localStorage.setItem('krishiUserStats', JSON.stringify(userStats));
   };
 
   if (!pageLoaded) {
@@ -185,7 +185,7 @@ const Login = () => {
         <div className="relative z-10">
           {/* Logo */}
           <div className="text-center mb-6">
-            <img src="/kisansetu.png" alt="Kisan Setu Logo" className="w-28 h-28 mx-auto mb-4 rounded-2xl object-contain" />
+            <img src="/Krishi.png.jpeg" alt="Krishi Logo" className="w-28 h-28 mx-auto mb-4 rounded-2xl object-contain" />
             <div className="text-xl font-bold text-green-600 mb-1 tracking-wide">{t.welcome}</div>
             <div className="text-orange-500 text-sm font-semibold mb-4">{t.tagline}</div>
             <h2 className="text-green-600 font-bold text-lg mb-6 tracking-wide">{t.login}</h2>

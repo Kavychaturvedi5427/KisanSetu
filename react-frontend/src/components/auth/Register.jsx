@@ -58,7 +58,7 @@ const Register = () => {
   const translations = {
     en: {
       welcome: 'JOIN US',
-      tagline: 'Create Your Kisan Setu Account',
+      tagline: 'Create Your Krishi Account',
       register: 'REGISTER',
       fullname: 'Full Name',
       email: 'Email',
@@ -70,14 +70,14 @@ const Register = () => {
       terms: 'I agree to the Terms of Service and Privacy Policy',
       registerBtn: 'Create Account',
       login: 'Already have an account? Login',
-      footer: '© 2025 Kisan Setu | Empowering Farmers',
+      footer: '© 2025 Krishi | Empowering Farmers',
       farmer: 'Farmer',
       consumer: 'Consumer',
       vendor: 'Vendor'
     },
     hi: {
       welcome: 'हमसे जुड़ें',
-      tagline: 'अपना किसान सेतु खाता बनाएं',
+      tagline: 'अपना कृषि खाता बनाएं',
       register: 'पंजीकरण',
       fullname: 'पूरा नाम',
       email: 'ईमेल',
@@ -89,7 +89,7 @@ const Register = () => {
       terms: 'मैं सेवा की शर्तों और गोपनीयता नीति से सहमत हूं',
       registerBtn: 'खाता बनाएं',
       login: 'पहले से खाता है? लॉगिन करें',
-      footer: '© 2025 किसान सेतु | किसानों को सशक्त बनाना',
+      footer: '© 2025 कृषि | किसानों को सशक्त बनाना',
       farmer: 'किसान',
       consumer: 'उपभोक्ता',
       vendor: 'विक्रेता'
@@ -267,7 +267,7 @@ const Register = () => {
         <div className="relative z-10">
           {/* Logo */}
           <div className="text-center mb-3 sm:mb-4">
-            <img src="/kisansetu.png" alt="Kisan Setu Logo" className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 rounded-2xl object-contain" />
+            <img src="/Krishi.png.jpeg" alt="Krishi Logo" className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 rounded-2xl object-contain" />
             <div className="text-base sm:text-lg font-bold text-green-600 mb-1 tracking-wide">{t.welcome}</div>
             <div className="text-orange-500 text-xs sm:text-sm font-semibold mb-2 sm:mb-3">{t.tagline}</div>
             <h2 className="text-green-600 font-bold text-sm sm:text-base mb-3 sm:mb-4 tracking-wide">{t.register}</h2>

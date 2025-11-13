@@ -13,7 +13,7 @@ const Landing = () => {
     const timer = setTimeout(() => {
       setPageLoaded(true);
       // Show location prompt if not enabled
-      const locationEnabled = localStorage.getItem('kisanSetuLocationEnabled');
+      const locationEnabled = localStorage.getItem('krishiLocationEnabled');
       if (!locationEnabled) {
         setTimeout(() => setShowLocationPrompt(true), 1500);
       }
@@ -23,7 +23,7 @@ const Landing = () => {
 
   const translations = {
     en: {
-      title: 'Kisan Setu',
+      title: 'Krishi',
       subtitle: 'AI-Powered Agricultural Intelligence Platform',
       description: 'Empowering farmers with modern technology, real-time weather updates, marketplace access, and intelligent farming solutions.',
       getStarted: 'Get Started',
@@ -37,10 +37,10 @@ const Landing = () => {
       aiDesc: 'Get intelligent farming advice powered by AI',
       dashboardTitle: 'Smart Dashboard',
       dashboardDesc: 'Monitor your farm with comprehensive analytics',
-      footer: '© 2025 Kisan Setu | Empowering Farmers Through Technology'
+      footer: '© 2025 Krishi | Empowering Farmers Through Technology'
     },
     hi: {
-      title: 'किसान सेतु',
+      title: 'कृषि',
       subtitle: 'एआई संचालित कृषि बुद्धिमत्ता मंच',
       description: 'आधुनिक तकनीक, वास्तविक समय मौसम अपडेट, बाजार पहुंच, और बुद्धिमान कृषि समाधानों के साथ किसानों को सशक्त बनाना।',
       getStarted: 'शुरू करें',
@@ -54,7 +54,7 @@ const Landing = () => {
       aiDesc: 'एआई द्वारा संचालित बुद्धिमान कृषि सलाह प्राप्त करें',
       dashboardTitle: 'स्मार्ट डैशबोर्ड',
       dashboardDesc: 'व्यापक विश्लेषण के साथ अपने खेत की निगरानी करें',
-      footer: '© 2025 किसान सेतु | तकनीक के माध्यम से किसानों को सशक्त बनाना'
+      footer: '© 2025 कृषि | तकनीक के माध्यम से किसानों को सशक्त बनाना'
     }
   };
 
@@ -65,7 +65,7 @@ const Landing = () => {
       <div className="fixed inset-0 bg-gradient-to-r from-green-600 to-orange-500 flex items-center justify-center z-50">
         <div className="text-center text-white">
           <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold">🌾 Kisan Setu</h2>
+          <h2 className="text-2xl font-bold">🌾 Krishi</h2>
           <p className="text-lg opacity-90">Loading...</p>
         </div>
       </div>
@@ -82,7 +82,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto mobile-px px-4 mobile-py py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2 sm:gap-3">
-              <img src="/kisansetu.png" alt="Kisan Setu Logo" className="w-8 h-8 sm:w-12 sm:h-12 rounded-full object-contain" />
+              <img src="/Krishi.png.jpeg" alt="Krishi Logo" className="w-8 h-8 sm:w-12 sm:h-12 rounded-full object-contain" />
               <h1 className="text-lg sm:text-2xl font-bold text-green-600">{t.title}</h1>
             </div>
             
@@ -110,7 +110,7 @@ const Landing = () => {
       {/* Hero Section */}
       <section className="py-10 sm:py-20 text-center mobile-px">
         <div className="max-w-4xl mx-auto px-4">
-          <img src="/kisansetu.png" alt="Kisan Setu Logo" className="w-20 h-20 sm:w-32 sm:h-32 mx-auto mb-4 sm:mb-6 object-contain" />
+          <img src="/Krishi.png.jpeg" alt="Krishi Logo" className="w-20 h-20 sm:w-32 sm:h-32 mx-auto mb-4 sm:mb-6 object-contain" />
           <h1 className="text-3xl sm:text-5xl font-bold text-green-600 mb-3 sm:mb-4">{t.title}</h1>
           <p className="text-lg sm:text-2xl text-orange-500 font-semibold mb-4 sm:mb-6">{t.subtitle}</p>
           <p className="text-base sm:text-lg text-gray-700 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">{t.description}</p>
@@ -210,7 +210,7 @@ const Landing = () => {
       <footer className="bg-gray-800 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <img src="/kisansetu.png" alt="Kisan Setu Logo" className="w-10 h-10 rounded-full object-contain" />
+            <img src="/Krishi.png.jpeg" alt="Krishi Logo" className="w-10 h-10 rounded-full object-contain" />
             <h3 className="text-xl font-bold">{t.title}</h3>
           </div>
           <p className="text-gray-400">{t.footer}</p>
@@ -222,7 +222,7 @@ const Landing = () => {
         isOpen={showLocationPrompt} 
         onClose={() => {
           setShowLocationPrompt(false);
-          localStorage.setItem('kisanSetuLocationEnabled', 'true');
+          localStorage.setItem('krishiLocationEnabled', 'true');
         }} 
       />
     </div>

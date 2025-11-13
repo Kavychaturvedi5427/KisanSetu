@@ -1,5 +1,5 @@
 @echo off
-echo 🚀 Quick Start - Kisan Setu
+echo 🚀 Quick Start - Krishi
 echo ===========================
 echo.
 
