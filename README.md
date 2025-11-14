@@ -1,6 +1,6 @@
-# 🌾 Krishi - My Hackathon Project
+# 🌾 Krishi - Hackathon Project
 
-Hey! This is my submission for the Smart City & Sustainability hackathon. I built an AI-powered platform to help farmers in India.
+Hey! This is our submission for the Smart City & Sustainability hackathon. We built an AI-powered platform to help farmers in India.
 
 ## 🚀 How to Run This Thing
 
@@ -20,7 +20,7 @@ QUICK_START.bat
 
 That's it! The app opens at http://localhost:5173
 
-## 🎯 What I Built
+## 🎯 What We Built
 
 ### AI Features
 - **Crop Disease Detection**: Upload crop photos and get AI predictions
@@ -49,7 +49,7 @@ That's it! The app opens at http://localhost:5173
 
 ## 🔑 Demo Accounts
 
-I made test accounts so you can try everything:
+We made test accounts so you can try everything:
 
 - **Admin**: `admin` / `password`
 - **Farmer**: `farmer1` / `password`  
@@ -112,7 +112,7 @@ Krishi/
 
 Backend: http://localhost:8001 | Frontend: http://localhost:5173
 
-### Main Endpoints I Built
+### Main Endpoints We Built
 ```
 🔐 Authentication
 POST /auth/login          # User login
@@ -235,7 +235,7 @@ npm run dev
 - Real data and analytics
 - Easy setup with batch scripts
 
-## 🤔 Challenges I Faced
+## 🤔 Challenges We Faced
 
 1. **Learning FastAPI**: Never used it before, but it's amazing!
 2. **Mobile Responsiveness**: Getting it right on all devices
@@ -245,7 +245,7 @@ npm run dev
 
 ## 🎯 Future Ideas
 
-If I had more time:
+If We had more time:
 - Real ML model training with more crop data
 - Push notifications for weather alerts
 - Video calls between farmers and experts
