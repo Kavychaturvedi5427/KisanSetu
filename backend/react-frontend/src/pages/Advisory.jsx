@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { advisoryAPI } from '../services/api';
 import MobileNav from '../components/common/MobileNav';
-import { ArrowLeft, Lightbulb, Cloud, Leaf, Calendar } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Cloud, Leaf, Calendar, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Advisory = () => {
@@ -14,30 +14,78 @@ const Advisory = () => {
 
   useEffect(() => {
     loadRecommendations();
-  }, [selectedSeason]);
+  }, [selectedSeason, language]);
 
   const loadRecommendations = async () => {
     setLoading(true);
     try {
-      const response = await advisoryAPI.getRecommendations(selectedSeason);
-      setRecommendations(response.data);
+      const response = await advisoryAPI.getRecommendations(selectedSeason, 'Delhi', language);
+      if (response && response.data) {
+        setRecommendations(response.data);
+      } else {
+        throw new Error('No data received');
+      }
     } catch (error) {
       console.error('Advisory error:', error);
-      // Agricultural advisory data
-      setRecommendations({
-        crops: language === 'hi' ? ['गेहूं', 'सरसों', 'मटर', 'आलू'] : ['Wheat', 'Mustard', 'Peas', 'Potato'],
-        tips: language === 'hi' ? [
-          'रबी फसलों के लिए मिट्टी तैयार करें',
-          'जैविक खाद का प्रयोग करें', 
-          'उचित सिंचाई सुनिश्चित करें',
-          'मौसम की स्थिति पर नजर रखें'
-        ] : [
-          'Prepare soil for rabi crops',
-          'Apply organic manure',
-          'Ensure proper irrigation',
-          'Monitor weather conditions'
-        ]
-      });
+      // Enhanced fallback data based on season and language
+      const fallbackData = {
+        winter: {
+          crops: language === 'hi' ? ['गेहूं', 'सरसों', 'मटर', 'आलू', 'जौ', 'चना'] : ['Wheat', 'Mustard', 'Peas', 'Potato', 'Barley', 'Gram'],
+          tips: language === 'hi' ? [
+            'रबी फसलों के लिए उचित जुताई के साथ मिट्टी तैयार करें',
+            'बुवाई से 2-3 सप्ताह पहले जैविक खाद डालें',
+            'उचित सिंचाई का समय निर्धारण करें',
+            'पाले से बचाव के लिए तापमान की निगरानी करें',
+            'बेहतर उत्पादन के लिए प्रमाणित बीजों का उपयोग करें',
+            'संतुलित NPK उर्वरक का प्रयोग करें'
+          ] : [
+            'Prepare soil for rabi crops with proper plowing',
+            'Apply organic manure 2-3 weeks before sowing',
+            'Ensure proper irrigation scheduling',
+            'Monitor temperature for frost protection',
+            'Use certified seeds for better yield',
+            'Apply balanced NPK fertilizers'
+          ]
+        },
+        summer: {
+          crops: language === 'hi' ? ['धान', 'कपास', 'गन्ना', 'मक्का', 'चारा फसलें', 'सब्जियां'] : ['Rice', 'Cotton', 'Sugarcane', 'Maize', 'Fodder crops', 'Vegetables'],
+          tips: language === 'hi' ? [
+            'जल संरक्षण तकनीकों पर ध्यान दें',
+            'मिट्टी की नमी बनाए रखने के लिए मल्चिंग का उपयोग करें',
+            'गर्मी प्रतिरोधी किस्मों की बुवाई करें',
+            'ड्रिप सिंचाई प्रणाली स्थापित करें',
+            'संवेदनशील फसलों के लिए छाया जाल प्रदान करें',
+            'मिट्टी की नमी का दैनिक निरीक्षण करें'
+          ] : [
+            'Focus on water conservation techniques',
+            'Use mulching to retain soil moisture',
+            'Plant heat-resistant crop varieties',
+            'Install drip irrigation systems',
+            'Provide shade nets for sensitive crops',
+            'Monitor soil moisture levels daily'
+          ]
+        },
+        monsoon: {
+          crops: language === 'hi' ? ['धान', 'कपास', 'दालें', 'सब्जियां', 'गन्ना', 'चारा'] : ['Rice', 'Cotton', 'Pulses', 'Vegetables', 'Sugarcane', 'Fodder'],
+          tips: language === 'hi' ? [
+            'खेत में उचित जल निकासी व्यवस्था सुनिश्चित करें',
+            'कीट और रोग के प्रकोप की निगरानी करें',
+            'भारी बारिश से पहले पकी फसल की कटाई करें',
+            'रोकथाम के लिए फफूंदनाशी का छिड़काव करें',
+            'पौधों के बीच उचित दूरी बनाए रखें',
+            'कटी हुई फसल को सूखी जगह पर भंडारित करें'
+          ] : [
+            'Ensure proper field drainage systems',
+            'Monitor for pest and disease outbreaks',
+            'Harvest mature crops before heavy rains',
+            'Apply preventive fungicide sprays',
+            'Maintain proper plant spacing',
+            'Store harvested crops in dry places'
+          ]
+        }
+      };
+      
+      setRecommendations(fallbackData[selectedSeason] || fallbackData.winter);
     } finally {
       setLoading(false);
     }
@@ -135,7 +183,7 @@ const Advisory = () => {
               <div className="w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
               <p className="text-gray-600">{language === 'hi' ? 'कृषि सुझाव लोड हो रहे हैं...' : 'Loading farming recommendations...'}</p>
             </div>
-          ) : recommendations && (
+          ) : recommendations ? (
             <div className="space-y-4">
               {/* Recommended Crops */}
               <div>
@@ -144,12 +192,16 @@ const Advisory = () => {
                   {t.recommendedCrops}
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {recommendations.crops.map((crop, index) => (
+                  {recommendations.crops && recommendations.crops.length > 0 ? recommendations.crops.map((crop, index) => (
                     <div key={index} className="bg-green-100 p-3 rounded-lg text-center">
                       <div className="text-2xl mb-1">🌾</div>
                       <div className="font-medium text-green-800 text-sm">{crop}</div>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="col-span-full text-center text-gray-500 py-4">
+                      {language === 'hi' ? 'कोई फसल सुझाव उपलब्ध नहीं' : 'No crop recommendations available'}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -160,16 +212,30 @@ const Advisory = () => {
                   {t.weatherTips}
                 </h3>
                 <div className="space-y-2">
-                  {recommendations.tips.map((tip, index) => (
+                  {recommendations.tips && recommendations.tips.length > 0 ? recommendations.tips.map((tip, index) => (
                     <div key={index} className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg">
                       <div className="w-6 h-6 bg-yellow-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                         <span className="text-white text-sm font-bold">{index + 1}</span>
                       </div>
                       <p className="text-gray-700">{tip}</p>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-center text-gray-500 py-4">
+                      {language === 'hi' ? 'कोई सुझाव उपलब्ध नहीं' : 'No tips available'}
+                    </div>
+                  )}
                 </div>
               </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-600">{language === 'hi' ? 'कोई सुझाव उपलब्ध नहीं है' : 'No recommendations available'}</p>
+              <button 
+                onClick={loadRecommendations}
+                className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 min-h-[44px]"
+              >
+                {language === 'hi' ? 'पुनः प्रयास करें' : 'Retry'}
+              </button>
             </div>
           )}
         </div>
@@ -209,6 +275,22 @@ const Advisory = () => {
                 ? 'अगले 3 दिनों में बारिश की संभावना है। फसल की सुरक्षा के लिए उचित व्यवस्था करें।'
                 : 'Rain expected in the next 3 days. Take necessary precautions to protect your crops.'}
             </p>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="mt-4 flex gap-2 flex-wrap">
+            <button 
+              onClick={() => navigate('/weather')}
+              className="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg text-sm font-medium transition-colors min-h-[44px]"
+            >
+              {language === 'hi' ? 'मौसम देखें' : 'View Weather'}
+            </button>
+            <button 
+              onClick={() => navigate('/crop-health')}
+              className="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg text-sm font-medium transition-colors min-h-[44px]"
+            >
+              {language === 'hi' ? 'फसल स्वास्थ्य' : 'Crop Health'}
+            </button>
           </div>
         </div>
       </div>

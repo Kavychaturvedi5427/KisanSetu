@@ -108,8 +108,8 @@ const Dashboard = () => {
 
   const translations = {
     en: {
-      title: 'Kisan Setu',
-      sidebarTitle: 'Kisan Setu',
+      title: 'Krishi',
+      sidebarTitle: 'Krishi',
       menuHome: 'Home',
       menuCrop: 'Crop Health',
       menuWeather: 'Weather Info',
@@ -146,11 +146,11 @@ const Dashboard = () => {
       sellTask: 'Sell Vegetables',
       sellDesc: 'Take vegetables to market',
       alertMsg: 'Important Notice: Rain expected tomorrow | Wheat price ₹2,100 per quintal',
-      footerMsg: 'Kisan Setu - Your Farming, Our Technology | Made for all farmer brothers'
+      footerMsg: 'Krishi - Your Farming, Our Technology | Made for all farmer brothers'
     },
     hi: {
-      title: 'किसान सेतु',
-      sidebarTitle: 'किसान सेतु',
+      title: 'कृषि',
+      sidebarTitle: 'कृषि',
       menuHome: 'मुख्य पृष्ठ',
       menuCrop: 'फसल स्वास्थ्य',
       menuWeather: 'मौसम जानकारी',
@@ -187,7 +187,7 @@ const Dashboard = () => {
       sellTask: 'सब्जी बेचना',
       sellDesc: 'मंडी में सब्जी ले जाना है',
       alertMsg: 'महत्वपूर्ण सूचना: कल बारिश की संभावना है | गेहूं का भाव ₹2,100 प्रति क्विंटल',
-      footerMsg: 'किसान सेतु - आपकी खेती, हमारी तकनीक | सभी किसान भाइयों के लिए बनाया गया'
+      footerMsg: 'कृषि - आपकी खेती, हमारी तकनीक | सभी किसान भाइयों के लिए बनाया गया'
     }
   };
 
@@ -300,7 +300,7 @@ const Dashboard = () => {
       <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-green-600 to-green-700 text-white transition-transform duration-300 ease-in-out shadow-2xl`}>
         <div className="p-5">
           <div className="text-center mb-6 p-3 bg-white/10 rounded-xl">
-            <img src="/kisansetu.png" alt="Kisan Setu Logo" className="w-12 h-12 mx-auto mb-2 rounded-lg object-contain" />
+            <img src="/Krishi.png.jpeg" alt="Krishi Logo" className="w-12 h-12 mx-auto mb-2 rounded-lg object-contain" />
             <h2 className="text-lg font-bold">{t.sidebarTitle}</h2>
           </div>
           <nav className="space-y-1">

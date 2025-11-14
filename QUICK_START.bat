@@ -1,42 +1,34 @@
 @echo off
-echo 🚀 Quick Start - Krishi
-echo ===========================
+echo 🌾 Krishi - Quick Start
+echo =======================
 echo.
 
 cd /d "%~dp0"
 
-echo 🔧 Killing any existing processes...
+echo 🔧 Stopping existing processes...
 taskkill /f /im node.exe >nul 2>&1
 taskkill /f /im python.exe >nul 2>&1
 
 echo.
-echo 🌐 Starting Backend (Port 8001)...
+echo 🚀 Starting Backend...
 cd backend
-start /min cmd /c "python -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload"
+start "Krishi Backend" cmd /k "python main.py"
 
 echo.
-echo 📱 Starting Frontend (Port 5173)...
-cd ..\react-frontend
-start /min cmd /c "npm run dev -- --host 0.0.0.0 --port 5173"
+echo 🚀 Starting Frontend...
+cd react-frontend
+start "Krishi Frontend" cmd /k "npm run dev"
 
 echo.
-echo ✅ Application Starting...
+echo ✅ Both servers starting...
 echo.
-echo 🔗 Access URLs:
-echo   • Frontend: http://localhost:5173
-echo   • Backend API: http://localhost:8001
-echo   • API Docs: http://localhost:8001/docs
-echo.
-echo ⚠️  Note: Use port 5173, NOT 5174
-echo.
-echo 📱 Mobile Access:
-echo   • Find your IP: ipconfig
-echo   • Use: http://YOUR_IP:5173
+echo 🔗 URLs:
+echo   Frontend: http://localhost:5173
+echo   Backend: http://localhost:8001
 echo.
 
 timeout /t 5 >nul
 start http://localhost:5173
 
-echo 🎯 Opening browser in 5 seconds...
-echo Press any key to exit this window...
+echo Press any key to exit...
 pause >nul
